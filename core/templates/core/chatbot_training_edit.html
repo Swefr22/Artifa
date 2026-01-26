@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Edit Training Pair - SWEKEER Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .edit-section {
+        position: relative;
+        padding: 60px 0;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        min-height: 100vh;
+    }
+
+    .edit-card {
+        background: linear-gradient(135deg, 
+            hsl(var(--card) / 0.8), 
+            hsl(var(--secondary) / 0.4));
+        border: 2px solid hsl(var(--primary) / 0.3);
+        border-radius: 15px;
+        padding: 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s ease;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .edit-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+        color: hsl(var(--foreground));
+    }
+
+    .edit-header i {
+        color: hsl(var(--primary));
+        text-shadow: 0 0 15px hsl(var(--primary) / 0.6);
+        margin-right: 15px;
+    }
+
+    .edit-subtitle {
+        font-size: 1rem;
+        color: hsl(var(--stranger-yellow));
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);
+        margin-bottom: 30px;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-label i {
+        color: hsl(var(--primary));
+        font-size: 1.1rem;
+    }
+
+    .form-control,
+    .form-select {
+        background: hsl(var(--secondary) / 0.3);
+        border: 1px solid hsl(var(--primary) / 0.2);
+        color: hsl(var(--foreground));
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .form-control::placeholder,
+    .form-select::placeholder {
+        color: hsl(var(--muted-foreground));
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: hsl(var(--secondary) / 0.5);
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+        color: hsl(var(--foreground));
+    }
+
+    .form-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.9rem;
+        margin-top: 8px;
+    }
+
+    .btn-update {
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)));
+        border: none;
+        color: hsl(var(--primary-foreground));
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: 'Montserrat', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px hsl(var(--primary) / 0.4);
+        margin-right: 10px;
+    }
+
+    .btn-update:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px hsl(var(--primary) / 0.6);
+    }
+
+    .btn-cancel {
+        background: hsl(var(--secondary) / 0.5);
+        border: 1px solid hsl(var(--primary) / 0.3);
+        color: hsl(var(--foreground));
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-cancel:hover {
+        background: hsl(var(--secondary) / 0.7);
+        border-color: hsl(var(--primary) / 0.6);
+        color: hsl(var(--foreground));
+    }
+
+    .alert-success {
+        background: linear-gradient(135deg, hsl(160 84% 39% / 0.15), hsl(160 84% 39% / 0.05));
+        border: 1px solid hsl(160 84% 39% / 0.5);
+        color: hsl(160 84% 70%);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+    }
+
+    .alert-error {
+        background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05));
+        border: 1px solid hsl(var(--primary) / 0.5);
+        color: hsl(var(--primary) / 0.8);
+        border-radius: 8px;
+        padding: 15px;
+        margin-bottom: 25px;
+    }
+
+    @media (max-width: 768px) {
+        .edit-header {
+            font-size: 1.5rem;
+        }
+
+        .edit-card {
+            padding: 20px;
+        }
+
+        .btn-update,
+        .btn-cancel {
+            width: 100%;
+            margin-right: 0;
+            margin-bottom: 10px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="edit-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="edit-card">
+                    <h1 class="edit-header">
+                        <i class="fas fa-edit"></i> Edit Training Pair
+                    </h1>
+                    <p class="edit-subtitle">
+                        <i class="fas fa-pencil-alt"></i> Update chatbot training data
+                    </p>
+
+                    {% if messages %}
+                        {% for message in messages %}
+                            {% if message.tags == 'success' %}
+                                <div class="alert-success">
+                                    <i class="fas fa-check-circle"></i> {{ message }}
+                                </div>
+                            {% elif message.tags == 'error' %}
+                                <div class="alert-error">
+                                    <i class="fas fa-exclamation-circle"></i> {{ message }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    {% endif %}
+
+                    <form method="POST">
+                        {% csrf_token %}
+
+                        <div class="form-group">
+                            <label class="form-label" for="question">
+                                <i class="fas fa-question-circle"></i> Question <span style="color: hsl(var(--primary));">*</span>
+                            </label>
+                            <textarea class="form-control" id="question" name="question" rows="4" required style="min-height: 100px;">{{ training.question }}</textarea>
+                            <div class="form-text"><i class="fas fa-info-circle"></i> The question users might ask SWEKEER</div>
+                        </div>
+
+                        <div class="form-group">
+                            <label class="form-label" for="answer">
+                                <i class="fas fa-reply"></i> Answer <span style="color: hsl(var(--primary));">*</span>
+                            </label>
+                            <textarea class="form-control" id="answer" name="answer" rows="6" required style="min-height: 150px;">{{ training.answer }}</textarea>
+                            <div class="form-text"><i class="fas fa-code"></i> HTML formatting supported: &lt;b&gt;, &lt;i&gt;, &lt;a href=""&gt;, &lt;br&gt;</div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="intent">
+                                        <i class="fas fa-tag"></i> Intent <small style="color: hsl(var(--muted-foreground));">(Optional)</small>
+                                    </label>
+                                    <input type="text" class="form-control" id="intent" name="intent" value="{{ training.intent|default:'' }}" placeholder="e.g., greeting, event_info">
+                                    <div class="form-text">Categorize this training pair</div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-6">
+                                <div class="form-group">
+                                    <label class="form-label" for="keywords">
+                                        <i class="fas fa-search"></i> Keywords <small style="color: hsl(var(--muted-foreground));">(Optional)</small>
+                                    </label>
+                                    <input type="text" class="form-control" id="keywords" name="keywords" value="{{ training.keywords|default:'' }}" placeholder="hello, hi, greetings">
+                                    <div class="form-text">Comma-separated keywords for matching</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: hsl(var(--secondary) / 0.2); border-radius: 8px;">
+                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" {% if training.is_active %}checked{% endif %} style="width: 20px; height: 20px; cursor: pointer; accent-color: hsl(var(--primary));">
+                                <label class="form-check-label" for="is_active" style="margin: 0; cursor: pointer; color: hsl(var(--foreground)); font-weight: 500;">
+                                    <i class="fas fa-power-off"></i> Active - Use this pair for matching
+                                </label>
+                            </div>
+                        </div>
+
+                        <div class="d-flex gap-2 mt-5" style="flex-wrap: wrap;">
+                            <button type="submit" class="btn-update">
+                                <i class="fas fa-save"></i> Save Changes
+                            </button>
+                            <a href="{% url 'chatbot_training' %}" class="btn-cancel">
+                                <i class="fas fa-times"></i> Cancel
+                            </a>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

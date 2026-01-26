@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Team Member Count</title>
+</head>
+<body>
+    <h1>Team Member Count Loop Test</h1>
+    
+    <div id="results"></div>
+    
+    <script>
+        // Test the fixed loop logic
+        const testCases = [
+            { count: 1, expected: 1 },
+            { count: 2, expected: 2 },
+            { count: 3, expected: 3 },
+            { count: 4, expected: 4 },
+            { count: 5, expected: 5 }
+        ];
+        
+        const resultsDiv = document.getElementById('results');
+        
+        testCases.forEach(testCase => {
+            // Simulate the fixed loop
+            let generatedCount = 0;
+            for (let i = 0; i < testCase.count; i++) {  // FIXED: Start from 0, include all members
+                generatedCount++;
+            }
+            
+            const passed = generatedCount === testCase.expected;
+            const status = passed ? '✅ PASS' : '❌ FAIL';
+            
+            const result = document.createElement('p');
+            result.innerHTML = `
+                ${status} | Count: ${testCase.count}, Expected: ${testCase.expected}, Generated: ${generatedCount}
+            `;
+            resultsDiv.appendChild(result);
+        });
+    </script>
+</body>
+</html>

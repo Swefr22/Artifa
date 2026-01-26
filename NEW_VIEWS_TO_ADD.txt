@@ -1,0 +1,82 @@
+# Add these functions to core/views.py after the send_test_email function
+
+def edit_participant(request, participant_id):
+    """Edit participant details"""
+    participant = get_object_or_404(Participant, id=participant_id)
+    
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST, instance=participant)
+        if form.is_valid():
+            form.save()
+            messages.success(request, f'Participant {participant.full_name} updated successfully!')
+            return redirect('view_registrations')
+    else:
+        form = RegistrationForm(instance=participant)
+    
+    context = {
+        'form': form,
+        'participant': participant,
+        'is_edit': True,
+    }
+    return render(request, 'core/edit_participant.html', context)
+
+
+def delete_participant(request, participant_id):
+    """Delete a participant"""
+    participant = get_object_or_404(Participant, id=participant_id)
+    
+    if request.method == 'POST':
+        participant_name = participant.full_name
+        # Delete all registrations first
+        Registration.objects.filter(participant=participant).delete()
+        # Then delete participant
+        participant.delete()
+        messages.success(request, f'Participant {participant_name} and all their registrations deleted!')
+        return redirect('view_registrations')
+    
+    context = {
+        'participant': participant,
+    }
+    return render(request, 'core/confirm_delete_participant.html', context)
+
+
+def edit_registration(request, registration_id):
+    """Edit registration details"""
+    registration = get_object_or_404(Registration, id=registration_id)
+    
+    if request.method == 'POST':
+        event_id = request.POST.get('event')
+        team_name = request.POST.get('team_name')
+        team_members = request.POST.get('team_members')
+        
+        if event_id:
+            event = get_object_or_404(Event, id=event_id)
+            registration.event = event
+            registration.team_name = team_name
+            registration.team_members = team_members
+            registration.save()
+            messages.success(request, 'Registration updated successfully!')
+            return redirect('view_registrations')
+    
+    context = {
+        'registration': registration,
+        'events': Event.objects.all(),
+    }
+    return render(request, 'core/edit_registration.html', context)
+
+
+def delete_registration(request, registration_id):
+    """Delete a registration"""
+    registration = get_object_or_404(Registration, id=registration_id)
+    
+    if request.method == 'POST':
+        participant_name = registration.participant.full_name
+        event_name = registration.event.name
+        registration.delete()
+        messages.success(request, f'Registration deleted: {participant_name} from {event_name}!')
+        return redirect('view_registrations')
+    
+    context = {
+        'registration': registration,
+    }
+    return render(request, 'core/confirm_delete_registration.html', context)

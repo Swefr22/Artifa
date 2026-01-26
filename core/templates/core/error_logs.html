@@ -1,0 +1,617 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Error Logs - Admin - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Stranger Things Theme - Consistent Color System */
+    :root {
+        /* Core Colors - Matching other pages */
+        --background: 0 0% 2%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 7%;
+        --card-foreground: 0 0% 96%;
+        --primary: 0 92% 48%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 22% 14%;
+        --secondary-foreground: 0 0% 96%;
+        --muted: 220 18% 18%;
+        --muted-foreground: 220 12% 65%;
+        --accent: 220 94% 58%;
+        --accent-foreground: 0 0% 100%;
+        --border: 220 18% 22%;
+        --ring: 0 92% 48%;
+        
+        /* Stranger Things Enhanced Colors */
+        --stranger-red: 0 92% 48%;
+        --stranger-red-glow: 0 100% 55%;
+        --stranger-dark: 0 0% 2%;
+        --stranger-blue: 220 94% 58%;
+        --stranger-fog: 220 24% 55%;
+        --upside-down-bg: 180 35% 4%;
+        --upside-down-red: 0 100% 35%;
+        --stranger-yellow: 45 98% 80%;
+        --stranger-orange: 25 96% 56%;
+        --stranger-purple: 280 86% 62%;
+        --stranger-green: 160 84% 39%;
+        
+        /* Enhanced Gradients */
+        --gradient-dark: linear-gradient(180deg, 
+            hsl(0 0% 2%) 0%, 
+            hsl(220 22% 8%) 30%, 
+            hsl(0 0% 2%) 100%);
+        --gradient-card: linear-gradient(145deg, 
+            hsl(0 0% 7%) 0%, 
+            hsl(220 18% 10%) 100%);
+        --gradient-btn-danger: linear-gradient(135deg, 
+            hsl(0 92% 48%) 0%, 
+            hsl(0 100% 45%) 50%, 
+            hsl(0 92% 48%) 100%);
+        
+        /* Shadows */
+        --shadow-card: 0 8px 32px hsl(0 0% 0% / .5);
+        --shadow-card-hover: 0 16px 48px hsl(0 92% 48% / .25);
+    }
+
+    body {
+        padding-top: 0 !important;
+        background: hsl(var(--background)) !important;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+        padding-top: 210px;
+    }
+
+    /* Header Section */
+    .error-logs-hero {
+        position: relative;
+        padding: 80px 0 40px;
+        background: linear-gradient(45deg, 
+            hsl(var(--stranger-dark) / 0.1), 
+            hsl(var(--secondary) / 0.1),
+            hsl(var(--stranger-dark) / 0.1));
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+        border-bottom: 3px solid hsl(var(--primary));
+    }
+
+    .error-logs-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsl(var(--accent) / 0.1) 0%, transparent 50%);
+    }
+
+    .error-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+
+    .error-subtitle {
+        font-size: 1.4rem;
+        color: hsl(var(--stranger-yellow));
+        opacity: 0.9;
+    }
+
+    /* Content Area */
+    .error-content {
+        padding: 60px 0;
+        background: hsl(var(--background));
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-title h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 5px;
+    }
+
+    .header-title p {
+        color: hsl(var(--muted-foreground));
+        font-size: 1.1rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    /* Buttons */
+    .btn {
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 1rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        text-decoration: none;
+    }
+
+    .btn-danger {
+        background: var(--gradient-btn-danger);
+        color: hsl(var(--primary-foreground));
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px hsl(0 92% 48% / 0.4);
+    }
+
+    .btn-secondary {
+        background: transparent;
+        color: hsl(var(--foreground));
+        border: 2px solid hsl(var(--border));
+    }
+
+    .btn-secondary:hover {
+        border-color: hsl(var(--primary));
+        background: hsl(var(--primary) / 0.1);
+        transform: translateY(-3px);
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .stat-card.danger {
+        border-color: hsl(var(--primary));
+        background: linear-gradient(145deg, 
+            hsl(0 92% 48% / 0.1), 
+            hsl(0 0% 7%) 100%);
+    }
+
+    .stat-card.warning {
+        border-color: hsl(var(--stranger-yellow));
+        background: linear-gradient(145deg, 
+            hsl(var(--stranger-yellow) / 0.1), 
+            hsl(0 0% 7%) 100%);
+    }
+
+    .stat-card.info {
+        border-color: hsl(var(--accent));
+        background: linear-gradient(145deg, 
+            hsl(var(--accent) / 0.1), 
+            hsl(0 0% 7%) 100%);
+    }
+
+    .stat-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        margin-bottom: 10px;
+    }
+
+    .stat-value {
+        font-size: 2.5rem;
+        font-weight: 900;
+        font-family: 'Orbitron', sans-serif;
+        color: hsl(var(--foreground));
+    }
+
+    /* Log Container */
+    .log-container {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .log-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .log-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .log-header i {
+        font-size: 2rem;
+        filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+    }
+
+    /* Log Entries */
+    .log-entries {
+        max-height: 600px;
+        overflow-y: auto;
+        background: hsl(var(--secondary) / 0.3);
+        border-radius: 10px;
+        padding: 20px;
+    }
+
+    .log-entry {
+        background: hsl(var(--card));
+        border-left: 4px solid hsl(var(--primary));
+        border-radius: 8px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        color: hsl(var(--foreground));
+        word-wrap: break-word;
+        white-space: pre-wrap;
+        line-height: 1.6;
+        transition: all 0.3s ease;
+    }
+
+    .log-entry:hover {
+        transform: translateX(5px);
+        background: hsl(var(--secondary) / 0.5);
+    }
+
+    .log-entry:last-child {
+        margin-bottom: 0;
+    }
+
+    /* Empty/Info States */
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px dashed hsl(var(--border));
+        border-radius: 15px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 1.1rem;
+    }
+
+    /* Alert */
+    .alert {
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px solid;
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 30px;
+        color: hsl(var(--foreground));
+    }
+
+    .alert-info {
+        border-color: hsl(var(--accent));
+        background: hsl(var(--accent) / 0.1);
+    }
+
+    .alert-success {
+        border-color: hsl(var(--stranger-green));
+        background: hsl(var(--stranger-green) / 0.1);
+    }
+
+    /* File Path Display */
+    .file-path {
+        background: hsl(var(--secondary) / 0.3);
+        border: 1px solid hsl(var(--border));
+        border-radius: 8px;
+        padding: 15px;
+        margin-top: 20px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+        word-break: break-all;
+    }
+
+    .file-label {
+        font-size: 0.8rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: hsl(var(--primary));
+        margin-bottom: 5px;
+        font-weight: 600;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .error-title {
+            font-size: 2.5rem;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .action-buttons {
+            width: 100%;
+            justify-content: flex-start;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .log-container {
+            padding: 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        main {
+            padding-top: 180px;
+        }
+
+        .error-logs-hero {
+            padding: 60px 0 30px;
+        }
+
+        .error-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .header-title h1 {
+            font-size: 1.8rem;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .stat-card {
+            padding: 25px;
+        }
+
+        .log-container {
+            padding: 25px;
+        }
+
+        .log-entries {
+            max-height: 500px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            font-size: 0.9rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .error-title {
+            font-size: 1.8rem;
+        }
+
+        .error-subtitle {
+            font-size: 1.1rem;
+        }
+
+        .log-container {
+            padding: 20px;
+        }
+
+        .log-header {
+            font-size: 1.3rem;
+        }
+
+        .log-entry {
+            font-size: 0.8rem;
+            padding: 12px 15px;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="error-logs-hero">
+    <div class="container">
+        <h1 class="error-title">
+            <i class="fas fa-exclamation-triangle"></i> Error Logs
+        </h1>
+        <p class="error-subtitle">System Monitoring & Debug Console</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="error-content">
+    <div class="container">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }}">
+                    <i class="fas fa-{% if message.tags == 'success' %}check-circle{% elif message.tags == 'danger' %}exclamation-circle{% elif message.tags == 'warning' %}exclamation-triangle{% else %}info-circle{% endif %}"></i>
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Header Actions -->
+        <div class="header-actions">
+            <div class="header-title">
+                <h1>System Error Logs</h1>
+                <p>Monitor and manage application errors</p>
+            </div>
+            <div class="action-buttons">
+                {% if log_exists and error_logs %}
+                <form method="POST" style="display: contents;" onsubmit="return confirm('⚠️ WARNING: This will delete ALL error logs. This action cannot be undone. Continue?');">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="delete_all">
+                    <button type="submit" class="btn btn-danger">
+                        <i class="fas fa-trash-alt"></i> Delete All Logs
+                    </button>
+                </form>
+                {% endif %}
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card danger">
+                <div class="stat-title">Total Errors</div>
+                <div class="stat-value">{{ total_errors }}</div>
+            </div>
+            <div class="stat-card warning">
+                <div class="stat-title">Log File Status</div>
+                <div class="stat-value">
+                    {% if log_exists %}
+                        <i class="fas fa-check-circle" style="color: hsl(var(--stranger-green));"></i>
+                    {% else %}
+                        <i class="fas fa-times-circle" style="color: hsl(var(--primary));"></i>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="stat-card info">
+                <div class="stat-title">Last Updated</div>
+                <div class="stat-value">Now</div>
+            </div>
+        </div>
+
+        <!-- Error Logs Container -->
+        <div class="log-container">
+            <h2 class="log-header">
+                <i class="fas fa-file-code"></i> Error Log Entries (Last 100)
+            </h2>
+
+            {% if error_logs %}
+                <div class="log-entries">
+                    {% for log in error_logs %}
+                        <div class="log-entry">
+                            {{ log }}
+                        </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- File Path -->
+                <div class="file-path">
+                    <div class="file-label">Log File Location</div>
+                    {{ error_log_path }}
+                </div>
+            {% elif log_exists %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    <div class="empty-text">
+                        <strong>Excellent!</strong> No errors detected. The system is running smoothly.
+                    </div>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <div class="empty-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <div class="empty-text">
+                        <strong>Log file not found.</strong> This could be the first run or the file was manually deleted.
+                    </div>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- Info Alert -->
+        <div class="alert alert-info">
+            <i class="fas fa-info-circle"></i>
+            <strong>System Information:</strong> Error logs are automatically cleared every 5 minutes via APScheduler when available. Refresh this page to view the latest logs.
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-scroll to bottom of logs
+    document.addEventListener('DOMContentLoaded', function() {
+        const logEntries = document.querySelector('.log-entries');
+        if (logEntries) {
+            logEntries.scrollTop = logEntries.scrollHeight;
+        }
+        
+        // Auto-refresh logs every 30 seconds
+        setInterval(function() {
+            if (!document.hidden) {
+                window.location.reload();
+            }
+        }, 30000);
+    });
+</script>
+{% endblock %}

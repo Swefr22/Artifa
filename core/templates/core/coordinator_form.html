@@ -1,0 +1,215 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}{% if is_edit %}Edit{% else %}Add{% endif %} Coordinator - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    .form-container {
+        background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.8));
+        border: 2px solid hsl(var(--primary));
+        border-radius: 12px;
+        padding: 40px;
+        box-shadow: 0 10px 40px hsl(var(--primary) / 0.1);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-group label {
+        color: hsl(var(--primary));
+        font-weight: 600;
+        margin-bottom: 10px;
+        display: block;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .form-control,
+    .form-select {
+        background: hsl(var(--background));
+        border: 2px solid hsl(var(--border));
+        color: hsl(var(--foreground));
+        padding: 12px 15px;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+        outline: none;
+        background: hsl(var(--background));
+    }
+
+    .form-control::placeholder {
+        color: hsl(var(--muted-foreground));
+    }
+
+    .btn-submit {
+        background: hsl(var(--primary));
+        color: white;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-bottom: 15px;
+    }
+
+    .btn-submit:hover {
+        background: hsl(var(--primary) / 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px hsl(var(--primary) / 0.3);
+    }
+
+    .btn-cancel {
+        background: transparent;
+        color: hsl(var(--primary));
+        padding: 12px 30px;
+        border: 2px solid hsl(var(--primary));
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        text-align: center;
+        transition: all 0.3s ease;
+        width: 100%;
+    }
+
+    .btn-cancel:hover {
+        background: hsl(var(--primary) / 0.1);
+    }
+
+    .error-message {
+        color: #e02401;
+        font-size: 0.9rem;
+        margin-top: 5px;
+    }
+
+    .form-errors {
+        background: #e024011a;
+        border-left: 4px solid #e02401;
+        padding: 15px;
+        border-radius: 6px;
+        margin-bottom: 25px;
+    }
+
+    .form-errors li {
+        color: #e02401;
+        margin-bottom: 5px;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <!-- Header -->
+            <div style="margin-bottom: 30px;">
+                <h1 style="color: hsl(var(--primary)); font-family: 'Orbitron', sans-serif; font-size: 2.2rem; margin-bottom: 10px;">
+                    <i class="fas fa-user-plus me-2"></i>{% if is_edit %}Edit{% else %}Add{% endif %} Coordinator
+                </h1>
+            </div>
+
+            <!-- Form -->
+            <form method="POST" class="form-container">
+                {% csrf_token %}
+
+                <!-- Display form errors if any -->
+                {% if form.non_field_errors %}
+                    <div class="form-errors">
+                        <ul>
+                            {% for error in form.non_field_errors %}
+                                <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                {% endif %}
+
+                <!-- Event -->
+                <div class="form-group">
+                    <label for="id_event">Event <span style="color: #e02401;">*</span></label>
+                    {{ form.event }}
+                    {% if form.event.errors %}
+                        <div class="error-message">
+                            {% for error in form.event.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Name -->
+                <div class="form-group">
+                    <label for="id_name">Coordinator Name <span style="color: #e02401;">*</span></label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                        <div class="error-message">
+                            {% for error in form.name.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Register Number -->
+                <div class="form-group">
+                    <label for="id_register_number">Register Number <span style="color: #e02401;">*</span></label>
+                    {{ form.register_number }}
+                    {% if form.register_number.errors %}
+                        <div class="error-message">
+                            {% for error in form.register_number.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Year -->
+                <div class="form-group">
+                    <label for="id_year">Year <span style="color: #e02401;">*</span></label>
+                    {{ form.year }}
+                    {% if form.year.errors %}
+                        <div class="error-message">
+                            {% for error in form.year.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Event Type -->
+                <div class="form-group">
+                    <label for="id_event_type">Event Type <span style="color: #e02401;">*</span></label>
+                    {{ form.event_type }}
+                    {% if form.event_type.errors %}
+                        <div class="error-message">
+                            {% for error in form.event_type.errors %}
+                                {{ error }}<br>
+                            {% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <!-- Buttons -->
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-save me-2"></i>{% if is_edit %}Update{% else %}Add{% endif %} Coordinator
+                </button>
+
+                <a href="{% url 'manage_coordinators' %}" class="btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

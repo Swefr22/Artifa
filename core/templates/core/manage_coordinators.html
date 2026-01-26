@@ -1,0 +1,206 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Coordinators - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    .coordinator-card {
+        background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.8));
+        border: 2px solid hsl(var(--primary));
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 15px;
+        transition: all 0.3s ease;
+        position: relative;
+    }
+
+    .coordinator-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px hsl(var(--primary) / 0.3);
+    }
+
+    .coordinator-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .coordinator-name {
+        color: hsl(var(--primary));
+        font-weight: 700;
+        font-size: 1.2rem;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .coordinator-details {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.95rem;
+        margin-bottom: 10px;
+    }
+
+    .coordinator-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .coordinator-actions button,
+    .coordinator-actions a {
+        flex: 1;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+        border-radius: 6px;
+        text-decoration: none;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: hsl(var(--primary));
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-edit:hover {
+        background: hsl(var(--primary) / 0.8);
+        transform: scale(1.05);
+    }
+
+    .btn-delete {
+        background: #e02401;
+        color: white;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-delete:hover {
+        background: #c41d00;
+        transform: scale(1.05);
+    }
+
+    .no-coordinators {
+        text-align: center;
+        padding: 40px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .add-btn {
+        background: hsl(var(--primary));
+        color: white;
+        padding: 12px 24px;
+        border-radius: 8px;
+        text-decoration: none;
+        display: inline-block;
+        margin-bottom: 30px;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        font-weight: 600;
+    }
+
+    .add-btn:hover {
+        background: hsl(var(--primary) / 0.8);
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px hsl(var(--primary) / 0.3);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <!-- Header -->
+            <div style="margin-bottom: 30px;">
+                <h1 style="color: hsl(var(--primary)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem; margin-bottom: 10px;">
+                    <i class="fas fa-users me-2"></i>Manage Coordinators
+                </h1>
+                {% if event %}
+                    <p style="color: hsl(var(--muted-foreground)); font-size: 1.1rem;">
+                        Managing coordinators for: <strong style="color: hsl(var(--foreground));">{{ event.name }}</strong>
+                    </p>
+                {% else %}
+                    <p style="color: hsl(var(--muted-foreground)); font-size: 1.1rem;">
+                        Manage all event coordinators
+                    </p>
+                {% endif %}
+            </div>
+
+            <!-- Messages -->
+            {% if messages %}
+                {% for message in messages %}
+                    <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+
+            <!-- Add Button -->
+            <div style="margin-bottom: 30px;">
+                {% if event %}
+                    <a href="{% url 'add_coordinator_for_event' event.id %}" class="add-btn">
+                        <i class="fas fa-plus me-2"></i>Add Coordinator
+                    </a>
+                {% else %}
+                    <a href="{% url 'add_coordinator' %}" class="add-btn">
+                        <i class="fas fa-plus me-2"></i>Add Coordinator
+                    </a>
+                {% endif %}
+            </div>
+
+            <!-- Coordinators List -->
+            {% if coordinators %}
+                {% for coordinator in coordinators %}
+                    <div class="coordinator-card">
+                        <div class="coordinator-header">
+                            <span class="coordinator-name">{{ coordinator.name }}</span>
+                            <span style="background: hsl(var(--primary)); color: white; padding: 5px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                {{ coordinator.get_event_type_display }}
+                            </span>
+                        </div>
+
+                        <div class="coordinator-details">
+                            <i class="fas fa-barcode me-2"></i><strong>Register No:</strong> {{ coordinator.register_number }}
+                        </div>
+                        <div class="coordinator-details">
+                            <i class="fas fa-graduation-cap me-2"></i><strong>Year:</strong> {{ coordinator.get_year_display }}
+                        </div>
+                        <div class="coordinator-details">
+                            <i class="fas fa-calendar me-2"></i><strong>Event:</strong> {{ coordinator.event.name }}
+                        </div>
+
+                        <div class="coordinator-actions">
+                            <a href="{% url 'edit_coordinator' coordinator.id %}" class="btn-edit">
+                                <i class="fas fa-edit me-1"></i>Edit
+                            </a>
+                            <form method="POST" action="{% url 'delete_coordinator' coordinator.id %}" style="flex: 1;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-delete" onclick="return confirm('Are you sure you want to delete this coordinator?');" style="width: 100%;">
+                                    <i class="fas fa-trash me-1"></i>Delete
+                                </button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% else %}
+                <div class="no-coordinators">
+                    <i class="fas fa-inbox" style="font-size: 3rem; color: hsl(var(--primary)); margin-bottom: 15px; display: block;"></i>
+                    <p>No coordinators found. <a href="{% url 'add_coordinator' %}" style="color: hsl(var(--primary)); text-decoration: underline;">Add one</a></p>
+                </div>
+            {% endif %}
+
+            <!-- Back Button -->
+            <div style="margin-top: 30px; text-align: center;">
+                <a href="{% url 'admin_dashboard' %}" style="color: hsl(var(--primary)); text-decoration: underline; font-size: 0.95rem;">
+                    <i class="fas fa-arrow-left me-2"></i>Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

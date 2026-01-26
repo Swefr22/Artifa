@@ -1,0 +1,1347 @@
+<!-- This template has been removed. Schedule page is no longer available. -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Schedule - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fixed background container with reveal effect */
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .background-image {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 1;
+    }
+
+    .black-cover {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000;
+        z-index: 2;
+        -webkit-mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        pointer-events: none;
+    }
+
+    .noise-layer {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 3;
+        -webkit-mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Schedule Hero */
+    .schedule-hero {
+        position: relative;
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .schedule-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(var(--accent) / 0.1) 0%, transparent 50%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 2px, 
+                hsl(var(--primary) / 0.03) 2px, 
+                hsl(var(--primary) / 0.03) 4px);
+        animation: timeline-pulse 3s infinite alternate;
+    }
+
+    @keyframes timeline-pulse {
+        0% { opacity: 0.3; }
+        100% { opacity: 0.6; }
+    }
+
+    .schedule-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-yellow)),
+            hsl(var(--primary)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+        position: relative;
+    }
+
+    .schedule-subtitle {
+        font-size: 1.5rem;
+        color: hsl(var(--stranger-yellow));
+        margin-bottom: 2rem;
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Timeline Navigation */
+    .timeline-nav {
+        background: hsl(var(--card) / 0.8);
+        backdrop-filter: blur(20px);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 25px;
+        margin: -50px auto 50px;
+        max-width: 900px;
+        box-shadow: var(--shadow-card);
+        position: relative;
+        z-index: 10;
+    }
+
+    .date-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .date-tab {
+        padding: 15px 30px;
+        background: hsl(var(--secondary));
+        border: 2px solid hsl(var(--border));
+        border-radius: 50px;
+        color: hsl(var(--foreground));
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .date-tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.2), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .date-tab:hover::before {
+        left: 100%;
+    }
+
+    .date-tab:hover {
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary));
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .date-tab.active {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    .date-badge {
+        display: inline-block;
+        background: hsl(var(--primary) / 0.2);
+        color: hsl(var(--primary));
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+        margin-left: 10px;
+    }
+
+    /* Timeline Section */
+    .timeline-section {
+        padding: 50px 0 100px;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .day-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--accent)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .day-title::after {
+        content: '';
+        position: absolute;
+        bottom: -10px;
+        left: 0;
+        width: 100px;
+        height: 4px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        border-radius: 2px;
+    }
+
+    /* Timeline Container */
+    .timeline-container {
+        position: relative;
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 40px 20px;
+    }
+
+    .timeline-container::before {
+        content: '';
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 6px;
+        background: linear-gradient(to bottom, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)),
+            hsl(var(--primary)));
+        transform: translateX(-50%);
+        box-shadow: var(--shadow-red-glow);
+        border-radius: 3px;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 60px;
+        opacity: 0;
+        transform: translateY(30px);
+        transition: all 0.6s ease;
+    }
+
+    .timeline-item.visible {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .timeline-item:nth-child(odd) {
+        padding-right: calc(50% + 40px);
+        text-align: right;
+    }
+
+    .timeline-item:nth-child(even) {
+        padding-left: calc(50% + 40px);
+    }
+
+    .timeline-time {
+        position: absolute;
+        top: 0;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        padding: 12px 25px;
+        border-radius: 12px;
+        font-weight: 800;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.1rem;
+        box-shadow: var(--shadow-red-glow);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-time {
+        right: calc(50% + 20px);
+    }
+
+    .timeline-item:nth-child(even) .timeline-time {
+        left: calc(50% + 20px);
+    }
+
+    .timeline-point {
+        position: absolute;
+        top: 15px;
+        width: 24px;
+        height: 24px;
+        background: hsl(var(--primary));
+        border-radius: 50%;
+        box-shadow: 0 0 25px hsl(var(--primary) / 0.8);
+        z-index: 2;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .timeline-point::after {
+        content: '';
+        position: absolute;
+        width: 12px;
+        height: 12px;
+        background: hsl(var(--stranger-yellow));
+        border-radius: 50%;
+    }
+
+    .timeline-item:nth-child(odd) .timeline-point {
+        right: calc(50% - 10px);
+    }
+
+    .timeline-item:nth-child(even) .timeline-point {
+        left: calc(50% - 10px);
+    }
+
+    .timeline-content {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 35px 30px;
+        box-shadow: var(--shadow-card);
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .timeline-content::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 6px;
+        height: 100%;
+        background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .timeline-item:hover .timeline-content {
+        transform: translateY(-10px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 20px;
+    }
+
+    .timeline-event-title {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin: 0;
+        line-height: 1.3;
+    }
+
+    .event-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+    }
+
+    .badge-event {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-red-glow)));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+    }
+
+    .badge-break {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+        color: hsl(var(--background));
+        box-shadow: 0 0 15px hsl(var(--stranger-yellow) / 0.5);
+    }
+
+    .badge-workshop {
+        background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 0 15px hsl(var(--accent) / 0.5);
+    }
+
+    .badge-general {
+        background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--border)));
+        color: hsl(var(--foreground));
+        box-shadow: 0 0 15px hsl(var(--border) / 0.5);
+    }
+
+    .timeline-description {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.7;
+        margin-bottom: 25px;
+        font-size: 1.1rem;
+    }
+
+    .timeline-meta {
+        display: flex;
+        align-items: center;
+        gap: 25px;
+        flex-wrap: wrap;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .meta-item i {
+        color: hsl(var(--primary));
+        font-size: 1.2rem;
+    }
+
+    /* Legend Section */
+    .legend-section {
+        padding: 60px 0;
+        background: hsl(var(--background));
+        position: relative;
+    }
+
+    .legend-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 40px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .legend-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 20px;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    .legend-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        padding: 20px;
+        background: hsl(var(--card) / 0.5);
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .legend-item:hover {
+        border-color: hsl(var(--primary));
+        transform: translateY(-5px);
+    }
+
+    .legend-color {
+        width: 20px;
+        height: 20px;
+        border-radius: 5px;
+    }
+
+    .color-event {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-red-glow)));
+    }
+
+    .color-break {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+    }
+
+    .color-workshop {
+        background: linear-gradient(135deg, hsl(var(--accent)), hsl(var(--primary)));
+    }
+
+    .color-general {
+        background: linear-gradient(135deg, hsl(var(--secondary)), hsl(var(--border)));
+    }
+
+    .legend-text {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+    }
+
+    /* Download Section */
+    .download-section {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        text-align: center;
+        position: relative;
+    }
+
+    .download-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 25px;
+        padding: 50px 40px;
+        max-width: 600px;
+        margin: 0 auto;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .download-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+    }
+
+    .download-icon {
+        font-size: 4rem;
+        color: hsl(var(--primary));
+        margin-bottom: 30px;
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+    }
+
+    .download-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 20px;
+    }
+
+    .download-text {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.7;
+        margin-bottom: 35px;
+        font-size: 1.1rem;
+    }
+
+    .download-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .download-button {
+        padding: 15px 35px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        display: flex;
+        align-items: center;
+        gap: 12px;
+    }
+
+    .btn-download {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .btn-download:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    .btn-share {
+        background: transparent;
+        border: 2px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+    }
+
+    .btn-share:hover {
+        background: hsl(var(--primary) / 0.1);
+        border-color: hsl(var(--stranger-red-glow));
+        box-shadow: var(--shadow-red-glow);
+        transform: translateY(-5px);
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .schedule-title {
+            font-size: 3rem;
+        }
+        
+        .timeline-container::before {
+            left: 30px;
+        }
+        
+        .timeline-item {
+            padding-left: 80px !important;
+            padding-right: 0 !important;
+            text-align: left !important;
+        }
+        
+        .timeline-time {
+            left: 0 !important;
+            right: auto !important;
+            top: -15px;
+        }
+        
+        .timeline-point {
+            left: 20px !important;
+            right: auto !important;
+        }
+        
+        .timeline-content::before {
+            left: 0;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .schedule-hero {
+            padding: 120px 0 60px;
+        }
+        
+        .schedule-title {
+            font-size: 2.5rem;
+        }
+        
+        .schedule-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .timeline-nav {
+            padding: 20px;
+            margin: -30px auto 30px;
+        }
+        
+        .date-tabs {
+            gap: 10px;
+        }
+        
+        .date-tab {
+            padding: 12px 20px;
+            font-size: 0.9rem;
+        }
+        
+        .timeline-content {
+            padding: 25px 20px;
+        }
+        
+        .timeline-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .download-buttons {
+            flex-direction: column;
+        }
+        
+        .download-button {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .schedule-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+        
+        .day-title {
+            font-size: 1.8rem;
+        }
+        
+        .timeline-event-title {
+            font-size: 1.3rem;
+        }
+        
+        .timeline-meta {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+        
+        .legend-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background Reveal Effect -->
+<div class="background-container">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<!-- Schedule Hero -->
+<section class="schedule-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="schedule-title">JOURNEY TIMELINE</h1>
+                <p class="schedule-subtitle">
+                    Navigate through the Upside Down hour by hour. Plan your interdimensional adventure with this detailed timeline.
+                </p>
+                <p class="lead" style="color: hsl(var(--muted-foreground));">
+                    <i class="fas fa-exclamation-triangle me-2"></i>All times are in 24-hour format. Schedule subject to interdimensional fluctuations.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Timeline Navigation -->
+<div class="container">
+    <div class="timeline-nav">
+        <div class="date-tabs">
+            {% for date, items in schedule_by_date.items %}
+<div class="date-tab {% if forloop.first %}active{% endif %}" data-date="{{ date }}">
+    <i class="fas fa-calendar-day me-2"></i>{{ date }}
+    <span class="date-badge">
+        {{ items|length }} events
+    </span>
+</div>
+{% empty %}
+            <div class="date-tab active">
+                <i class="fas fa-calendar-day me-2"></i>February 7, 2026
+                <span class="date-badge">Coming Soon</span>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<!-- Main Timeline -->
+<section class="timeline-section">
+    <div class="container">
+        {% if schedule_by_date %}
+            {% for date, items in schedule_by_date.items %}
+            <div class="timeline-day {% if not forloop.first %}d-none{% endif %}" id="day-{{ date|slugify }}">
+                <h2 class="day-title">
+                    <i class="fas fa-calendar-star me-3"></i>{{ date }}
+                </h2>
+                
+                <div class="timeline-container">
+                    {% for item in items %}
+                    <div class="timeline-item {% if forloop.counter|divisibleby:2 %}even{% else %}odd{% endif %}">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            {{ item.start_time|time:"H:i" }} - {{ item.end_time|time:"H:i" }}
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">{{ item.title }}</h3>
+                                <span class="event-badge 
+                                    {% if item.is_break %}badge-break
+                                    {% elif item.event %}badge-event
+                                    {% elif 'workshop' in item.title|lower %}badge-workshop
+                                    {% else %}badge-general{% endif %}">
+                                    {% if item.is_break %}
+                                        <i class="fas fa-coffee me-1"></i>BREAK
+                                    {% elif item.event %}
+                                        <i class="fas fa-star me-1"></i>EVENT
+                                    {% elif 'workshop' in item.title|lower %}
+                                        <i class="fas fa-chalkboard-teacher me-1"></i>WORKSHOP
+                                    {% else %}
+                                        <i class="fas fa-info-circle me-1"></i>GENERAL
+                                    {% endif %}
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                {{ item.description|default:"An important segment of our interdimensional journey. Details will be revealed as we get closer to the event." }}
+                            </p>
+                            
+                            <div class="timeline-meta">
+                                {% if item.event %}
+                                <div class="meta-item">
+                                    <i class="fas fa-gamepad"></i>
+                                    <span>{{ item.event.name }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if item.location %}
+                                <div class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>{{ item.location }}</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if item.event and item.event.is_team_event %}
+                                <div class="meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>Team Event</span>
+                                </div>
+                                {% elif item.event %}
+                                <div class="meta-item">
+                                    <i class="fas fa-user"></i>
+                                    <span>Solo Challenge</span>
+                                </div>
+                                {% endif %}
+                                
+                                {% if item.speaker %}
+                                <div class="meta-item">
+                                    <i class="fas fa-microphone"></i>
+                                    <span>By: {{ item.speaker }}</span>
+                                </div>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endfor %}
+        {% else %}
+            <!-- Default timeline if no data -->
+            <div class="timeline-day" id="day-feb-7-2026">
+                <h2 class="day-title">
+                    <i class="fas fa-calendar-star me-3"></i>February 7, 2026
+                </h2>
+                
+                <div class="timeline-container">
+                    <!-- Sample timeline items -->
+                    <div class="timeline-item odd">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            08:30 - 09:00
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">Portal Registration Opens</h3>
+                                <span class="event-badge badge-general">
+                                    <i class="fas fa-sign-in-alt me-1"></i>REGISTRATION
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Arrive early to secure your interdimensional credentials and goodie bags.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item even">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            09:00 - 09:30
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">Opening Ceremony</h3>
+                                <span class="event-badge badge-general">
+                                    <i class="fas fa-flag me-1"></i>CEREMONY
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Official opening of the Upside Down portals with special addresses and surprises.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item odd">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            09:30 - 13:00
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">Code Demogorgon</h3>
+                                <span class="event-badge badge-event">
+                                    <i class="fas fa-code me-1"></i>HACKATHON
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Battle the ultimate coding challenge. Show your algorithmic prowess in this intense 3.5-hour hackathon.
+                            </p>
+                            
+                            <div class="timeline-meta">
+                                <div class="meta-item">
+                                    <i class="fas fa-users"></i>
+                                    <span>Team Event (2-4 members)</span>
+                                </div>
+                                <div class="meta-item">
+                                    <i class="fas fa-map-marker-alt"></i>
+                                    <span>Main Coding Arena</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item even">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            13:00 - 14:00
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">Interdimensional Lunch Break</h3>
+                                <span class="event-badge badge-break">
+                                    <i class="fas fa-utensils me-1"></i>BREAK
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Refuel with interdimensional snacks and network with fellow explorers.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item odd">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            14:00 - 16:00
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">AI Workshop: Neural Nets</h3>
+                                <span class="event-badge badge-workshop">
+                                    <i class="fas fa-chalkboard-teacher me-1"></i>WORKSHOP
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Hands-on workshop on building and training neural networks for real-world applications.
+                            </p>
+                        </div>
+                    </div>
+                    
+                    <div class="timeline-item even">
+                        <div class="timeline-point"></div>
+                        
+                        <div class="timeline-time">
+                            <i class="fas fa-clock"></i>
+                            18:00 - 19:00
+                        </div>
+                        
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <h3 class="timeline-event-title">Awards Ceremony</h3>
+                                <span class="event-badge badge-general">
+                                    <i class="fas fa-trophy me-1"></i>AWARDS
+                                </span>
+                            </div>
+                            
+                            <p class="timeline-description">
+                                Celebrate the heroes of the Upside Down with prize distributions and closing remarks.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Legend Section -->
+<section class="legend-section">
+    <div class="container">
+        <h3 class="legend-title">
+            <i class="fas fa-key me-3"></i>Interdimensional Key
+        </h3>
+        
+        <div class="legend-grid">
+            <div class="legend-item">
+                <div class="legend-color color-event"></div>
+                <span class="legend-text">Competition / Main Event</span>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color color-break"></div>
+                <span class="legend-text">Break / Networking</span>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color color-workshop"></div>
+                <span class="legend-text">Workshop / Learning</span>
+            </div>
+            
+            <div class="legend-item">
+                <div class="legend-color color-general"></div>
+                <span class="legend-text">General / Ceremony</span>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Download Section -->
+<section class="download-section">
+    <div class="container">
+        <div class="download-card">
+            <div class="download-icon">
+                <i class="fas fa-file-download"></i>
+            </div>
+            
+            <h3 class="download-title">Download Journey Timeline</h3>
+            
+            <p class="download-text">
+                Save your interdimensional schedule for offline reference. Available in multiple formats for your convenience.
+            </p>
+            
+            <div class="download-buttons">
+                <button class="download-button btn-download">
+                    <i class="fas fa-file-pdf"></i>Download PDF
+                </button>
+                
+                <button class="download-button btn-download">
+                    <i class="fas fa-file-image"></i>Save as Image
+                </button>
+                
+                <button class="download-button btn-share">
+                    <i class="fas fa-share-alt"></i>Share Schedule
+                </button>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lightning Effects
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 5,
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+        if (Math.random() < config.branchChance) {
+            drawLightning(midX, midY, midX + (Math.random() - 0.5) * displace * 2, midY + Math.random() * displace * 2, displace / 2, depth + 1);
+        }
+    }
+
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (!blackCover || !noiseLayer) return;
+        const maskGradients = [];
+        for (let i = 0; i <= 10; i++) {
+            const t = i / 10;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            maskGradients.push(`radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`);
+        }
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+        createLightningHoles(startX, 0, endX, endY);
+        drawLightning(startX, 0, endX, endY, 90);
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            drawLightning(startX, 0, endX, endY, 90 * alpha);
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    setInterval(() => { lightningStrike(); }, 2000);
+    setTimeout(() => { lightningStrike(); }, 500);
+
+    document.addEventListener("mousemove", function(e) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Date tab switching
+        const dateTabs = document.querySelectorAll('.date-tab');
+        const timelineDays = document.querySelectorAll('.timeline-day');
+        
+        dateTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                const targetDate = this.dataset.date;
+                
+                // Remove active class from all tabs
+                dateTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Hide all timeline days
+                timelineDays.forEach(day => day.classList.add('d-none'));
+                // Show selected timeline day
+                const targetDay = document.getElementById(`day-${targetDate.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`);
+                if (targetDay) {
+                    targetDay.classList.remove('d-none');
+                }
+                
+                // Scroll to timeline section
+                document.querySelector('.timeline-section').scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            });
+        });
+        
+        // Timeline animation on scroll
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        });
+        
+        timelineItems.forEach(item => {
+            observer.observe(item);
+        });
+        
+        // Download button functionality
+        const downloadButtons = document.querySelectorAll('.download-button');
+        downloadButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const buttonType = this.innerHTML.includes('PDF') ? 'PDF' : 
+                                 this.innerHTML.includes('Image') ? 'Image' : 'Share';
+                
+                // Show loading state
+                const originalText = this.innerHTML;
+                this.innerHTML = `<i class="fas fa-spinner fa-spin"></i> Processing...`;
+                this.disabled = true;
+                
+                // Simulate download/processing
+                setTimeout(() => {
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                    
+                    if (buttonType === 'PDF') {
+                        alert('PDF download started! In a real implementation, this would trigger a file download.');
+                    } else if (buttonType === 'Image') {
+                        alert('Image saved! In a real implementation, this would generate and save an image.');
+                    } else {
+                        alert('Schedule shared! In a real implementation, this would open sharing options.');
+                    }
+                }, 1500);
+            });
+        });
+        
+        // Add hover effect to timeline items
+        timelineItems.forEach(item => {
+            const content = item.querySelector('.timeline-content');
+            
+            item.addEventListener('mouseenter', function() {
+                content.style.transform = 'translateY(-10px)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                content.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add current time indicator
+        function updateCurrentTimeIndicator() {
+            const now = new Date();
+            const currentHour = now.getHours();
+            const currentMinute = now.getMinutes();
+            
+            timelineItems.forEach(item => {
+                const timeText = item.querySelector('.timeline-time').textContent;
+                const [startTime, endTime] = timeText.split(' - ');
+                
+                // Parse times (simple parsing for demo)
+                const startHour = parseInt(startTime.split(':')[0]);
+                const startMin = parseInt(startTime.split(':')[1]);
+                const endHour = parseInt(endTime.split(':')[0]);
+                const endMin = parseInt(endTime.split(':')[1]);
+                
+                // Convert to minutes for comparison
+                const currentTotal = currentHour * 60 + currentMinute;
+                const startTotal = startHour * 60 + startMin;
+                const endTotal = endHour * 60 + endMin;
+                
+                // Check if current time is within this event
+                if (currentTotal >= startTotal && currentTotal <= endTotal) {
+                    item.classList.add('current-event');
+                    const point = item.querySelector('.timeline-point');
+                    point.style.animation = 'pulse 2s infinite';
+                } else {
+                    item.classList.remove('current-event');
+                    const point = item.querySelector('.timeline-point');
+                    point.style.animation = '';
+                }
+            });
+        }
+        
+        // Update current time indicator every minute
+        updateCurrentTimeIndicator();
+        setInterval(updateCurrentTimeIndicator, 60000);
+    });
+</script>
+
+<style>
+    /* Add animation for current event */
+    @keyframes pulse {
+        0% { transform: scale(1); box-shadow: 0 0 25px hsl(var(--primary) / 0.8); }
+        50% { transform: scale(1.2); box-shadow: 0 0 40px hsl(var(--stranger-yellow) / 0.8); }
+        100% { transform: scale(1); box-shadow: 0 0 25px hsl(var(--primary) / 0.8); }
+    }
+    
+    .current-event .timeline-content {
+        border-color: hsl(var(--stranger-yellow));
+        box-shadow: 0 0 30px hsl(var(--stranger-yellow) / 0.3);
+    }
+</style>
+{% endblock %}

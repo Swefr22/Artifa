@@ -1,0 +1,874 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}View Registrations - Admin - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Stranger Things Theme - Consistent Color System */
+    :root {
+        --background: 0 0% 2%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 7%;
+        --primary: 0 92% 48%;
+        --secondary: 220 22% 14%;
+        --muted-foreground: 220 12% 65%;
+        --border: 220 18% 22%;
+        --stranger-yellow: 45 98% 80%;
+        --stranger-orange: 25 96% 56%;
+        --stranger-green: 160 84% 39%;
+        --stranger-blue: 220 94% 58%;
+        --stranger-purple: 280 86% 62%;
+    }
+
+    body {
+        padding-top: 0 !important;
+        background: hsl(var(--background)) !important;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+        padding-top: 210px;
+    }
+
+    /* Header Section */
+    .registrations-hero {
+        position: relative;
+        padding: 80px 0 40px;
+        background: linear-gradient(45deg, 
+            hsl(0 0% 2% / 0.1), 
+            hsl(220 22% 14% / 0.1),
+            hsl(0 0% 2% / 0.1));
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+        border-bottom: 3px solid hsl(var(--primary));
+    }
+
+    .registrations-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsl(var(--stranger-blue) / 0.1) 0%, transparent 50%);
+    }
+
+    .registrations-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+
+    .registrations-subtitle {
+        font-size: 1.4rem;
+        color: hsl(var(--stranger-yellow));
+        opacity: 0.9;
+    }
+
+    /* Content Area */
+    .registrations-content {
+        padding: 60px 0;
+        background: hsl(var(--background));
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Header Actions */
+    .header-actions {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        flex-wrap: wrap;
+        gap: 20px;
+    }
+
+    .header-title h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 5px;
+    }
+
+    .header-title p {
+        color: hsl(var(--muted-foreground));
+        font-size: 1.1rem;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 20px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: linear-gradient(145deg, hsl(0 0% 7%), hsl(220 18% 10%));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 16px 48px hsl(0 92% 48% / .25);
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: hsl(var(--primary));
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 0.9rem;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Filter/Sort Controls */
+    .filter-controls {
+        background: linear-gradient(145deg, hsl(0 0% 7%), hsl(220 18% 10%));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .filter-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .sort-buttons {
+        display: flex;
+        gap: 15px;
+        flex-wrap: wrap;
+    }
+
+    .sort-btn {
+        padding: 10px 20px;
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+        color: hsl(var(--foreground));
+        text-decoration: none;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .sort-btn:hover {
+        border-color: hsl(var(--primary));
+        background: hsl(var(--primary) / 0.1);
+    }
+
+    .sort-btn.active {
+        background: hsl(var(--primary) / 0.2);
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary));
+    }
+
+    /* Group Cards for Sorting */
+    .group-cards {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+
+    .group-card {
+        background: linear-gradient(145deg, hsl(0 0% 7%), hsl(220 18% 10%));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        overflow: hidden;
+    }
+
+    .group-header {
+        background: hsl(var(--secondary) / 0.5);
+        padding: 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+    }
+
+    .group-header:hover {
+        background: hsl(var(--secondary) / 0.7);
+    }
+
+    .group-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .group-count {
+        background: hsl(var(--primary));
+        color: hsl(0 0% 100%);
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 700;
+    }
+
+    .group-content {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.3s ease;
+    }
+
+    .group-content.active {
+        max-height: 1000px;
+    }
+
+    /* Table Styles */
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        margin: 0;
+    }
+
+    .data-table thead {
+        background: hsl(var(--secondary) / 0.3);
+    }
+
+    .data-table th {
+        padding: 15px;
+        text-align: left;
+        color: hsl(var(--primary));
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        border-bottom: 2px solid hsl(var(--primary));
+    }
+
+    .data-table td {
+        padding: 15px;
+        border-bottom: 1px solid hsl(var(--border));
+        color: hsl(var(--foreground));
+    }
+
+    .data-table tbody tr:hover {
+        background: hsl(var(--secondary) / 0.3);
+    }
+
+    .event-time {
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+        margin-top: 5px;
+    }
+
+    /* Action Buttons */
+    .action-btns {
+        display: flex;
+        gap: 10px;
+    }
+
+    .action-btn {
+        padding: 8px 15px;
+        border-radius: 8px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        border: none;
+        cursor: pointer;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-edit {
+        background: hsl(var(--primary) / 0.1);
+        border: 1px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+    }
+
+    .btn-edit:hover {
+        background: hsl(var(--primary));
+        color: hsl(0 0% 100%);
+    }
+
+    .btn-delete {
+        background: hsl(0 92% 48% / 0.1);
+        border: 1px solid hsl(0 92% 48%);
+        color: hsl(0 92% 60%);
+    }
+
+    .btn-delete:hover {
+        background: hsl(0 92% 48%);
+        color: hsl(0 0% 100%);
+    }
+
+    /* Export Button */
+    .export-btn {
+        background: linear-gradient(135deg, hsl(var(--stranger-green)), hsl(160 84% 39%));
+        color: hsl(0 0% 100%);
+        border: none;
+        padding: 12px 25px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .export-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 8px 25px hsl(var(--stranger-green) / 0.3);
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 40px;
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px dashed hsl(var(--border));
+        border-radius: 15px;
+        margin: 40px 0;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 1.1rem;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 768px) {
+        main {
+            padding-top: 180px;
+        }
+
+        .registrations-hero {
+            padding: 60px 0 30px;
+        }
+
+        .registrations-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .header-actions {
+            flex-direction: column;
+            align-items: flex-start;
+        }
+
+        .sort-buttons {
+            flex-direction: column;
+        }
+
+        .sort-btn {
+            width: 100%;
+            text-align: center;
+            justify-content: center;
+        }
+
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .data-table {
+            display: block;
+            overflow-x: auto;
+        }
+
+        .action-btns {
+            flex-direction: column;
+        }
+
+        .action-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="registrations-hero">
+    <div class="container">
+        <h1 class="registrations-title">
+            <i class="fas fa-clipboard-list"></i> Registration Management
+        </h1>
+        <p class="registrations-subtitle">View and manage all event registrations</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="registrations-content">
+    <div class="container">
+        <!-- Header Actions -->
+        <div class="header-actions">
+            <div class="header-title">
+                <h1>Registration Dashboard</h1>
+                <p>Monitor and manage all participant registrations</p>
+            </div>
+            <a href="{% url 'export_registrations' %}" class="export-btn">
+                <i class="fas fa-download"></i> Export CSV
+            </a>
+        </div>
+
+        <!-- Statistics -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_registrations }}</div>
+                <div class="stat-label">Total Registrations</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_participants }}</div>
+                <div class="stat-label">Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_events }}</div>
+                <div class="stat-label">Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ team_registrations }}</div>
+                <div class="stat-label">Team Events</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ individual_registrations }}</div>
+                <div class="stat-label">Solo Events</div>
+            </div>
+        </div>
+
+        <!-- Sorting Controls -->
+        <div class="filter-controls">
+            <div class="filter-title">Sort By:</div>
+            <div class="sort-buttons">
+                <a href="?sort_by=name&view={{ view_mode }}{% if team_id %}&team_id={{ team_id }}{% endif %}" 
+                   class="sort-btn {% if sort_by == 'name' %}active{% endif %}">
+                    <i class="fas fa-sort-alpha-down"></i> By Name
+                </a>
+                <a href="?sort_by=dept&view={{ view_mode }}{% if team_id %}&team_id={{ team_id }}{% endif %}" 
+                   class="sort-btn {% if sort_by == 'dept' %}active{% endif %}">
+                    <i class="fas fa-building"></i> By Department
+                </a>
+                <a href="?sort_by=year&view={{ view_mode }}{% if team_id %}&team_id={{ team_id }}{% endif %}" 
+                   class="sort-btn {% if sort_by == 'year' %}active{% endif %}">
+                    <i class="fas fa-calendar"></i> By Year
+                </a>
+                <a href="?sort_by=event&view={{ view_mode }}{% if team_id %}&team_id={{ team_id }}{% endif %}" 
+                   class="sort-btn {% if sort_by == 'event' %}active{% endif %}">
+                    <i class="fas fa-check-circle"></i> By Event
+                </a>
+                <a href="?sort_by=team&view={{ view_mode }}{% if team_id %}&team_id={{ team_id }}{% endif %}" 
+                   class="sort-btn {% if sort_by == 'team' %}active{% endif %}">
+                    <i class="fas fa-users"></i> By Team
+                </a>
+            </div>
+        </div>
+
+        <!-- Grouped Registration Views -->
+        <div class="group-cards">
+            {% if sort_by == 'name' and registrations_by_name %}
+                <!-- Group by Name -->
+                {% for name, registrations in registrations_by_name.items %}
+                <div class="group-card">
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div class="group-title">
+                            <i class="fas fa-user"></i> {{ name }}
+                        </div>
+                        <div class="group-count">{{ registrations|length }} registrations</div>
+                    </div>
+                    <div class="group-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Participant Name</th>
+                                    <th>Reg. No.</th>
+                                    <th>Event</th>
+                                    <th>Year</th>
+                                    <th>Department</th>
+                                    <th>Phone</th>
+                                    <th>Email</th>
+                                    <th>Team Name</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td><strong>{{ reg.full_name }}</strong></td>
+                                    <td><code>{{ reg.register_number }}</code></td>
+                                    <td>
+                                        <strong>{{ reg.event.name }}</strong>
+                                        {% if reg.event.start_time %}
+                                        <div class="event-time">
+                                            ⏰ {{ reg.event.start_time|time:"H:i" }} - {{ reg.event.end_time|time:"H:i" }}
+                                        </div>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reg.year }}</td>
+                                    <td>{{ reg.department }}</td>
+                                    <td>{{ reg.phone_number }}</td>
+                                    <td>{{ reg.email }}</td>
+                                    <td>
+                                        {% if reg.team_name %}
+                                            <span style="background: hsl(var(--primary) / 0.2); color: hsl(var(--primary)); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                                {{ reg.team_name }}
+                                            </span>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground));">Solo</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reg.registered_at|date:"d M Y" }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <a href="{% url 'edit_registration' reg.id %}" class="action-btn btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{% url 'delete_registration' reg.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% elif sort_by == 'dept' and registrations_by_dept %}
+                <!-- Group by Department -->
+                {% for department, registrations in registrations_by_dept.items %}
+                <div class="group-card">
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div class="group-title">
+                            <i class="fas fa-building"></i> {{ department }}
+                        </div>
+                        <div class="group-count">{{ registrations|length }} registrations</div>
+                    </div>
+                    <div class="group-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Participant Name</th>
+                                    <th>Reg. No.</th>
+                                    <th>Year</th>
+                                    <th>Event</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Team Name</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td><strong>{{ reg.full_name }}</strong></td>
+                                    <td><code>{{ reg.register_number }}</code></td>
+                                    <td>{{ reg.year }}</td>
+                                    <td>{{ reg.event.name }}</td>
+                                    <td>{{ reg.email }}</td>
+                                    <td>{{ reg.phone_number }}</td>
+                                    <td>
+                                        {% if reg.team_name %}
+                                            <span style="background: hsl(var(--primary) / 0.2); color: hsl(var(--primary)); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                                {{ reg.team_name }}
+                                            </span>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground));">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reg.registered_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <a href="{% url 'edit_registration' reg.id %}" class="action-btn btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{% url 'delete_registration' reg.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% elif sort_by == 'year' and registrations_by_year %}
+                <!-- Group by Year -->
+                {% for year, registrations in registrations_by_year.items %}
+                <div class="group-card">
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div class="group-title">
+                            <i class="fas fa-calendar"></i> {{ year }}
+                        </div>
+                        <div class="group-count">{{ registrations|length }} registrations</div>
+                    </div>
+                    <div class="group-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Participant Name</th>
+                                    <th>Reg. No.</th>
+                                    <th>Department</th>
+                                    <th>Event</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Team Name</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td><strong>{{ reg.full_name }}</strong></td>
+                                    <td><code>{{ reg.register_number }}</code></td>
+                                    <td>{{ reg.department }}</td>
+                                    <td>{{ reg.event.name }}</td>
+                                    <td>{{ reg.email }}</td>
+                                    <td>{{ reg.phone_number }}</td>
+                                    <td>
+                                        {% if reg.team_name %}
+                                            <span style="background: hsl(var(--primary) / 0.2); color: hsl(var(--primary)); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                                {{ reg.team_name }}
+                                            </span>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground));">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reg.registered_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <a href="{% url 'edit_registration' reg.id %}" class="action-btn btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{% url 'delete_registration' reg.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% elif sort_by == 'event' and registrations_by_event %}
+                <!-- Group by Event -->
+                {% for event_name, registrations in registrations_by_event.items %}
+                <div class="group-card">
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div class="group-title">
+                            <i class="fas fa-check-circle"></i> {{ event_name }}
+                        </div>
+                        <div class="group-count">{{ registrations|length }} registrations</div>
+                    </div>
+                    <div class="group-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Participant Name</th>
+                                    <th>Reg. No.</th>
+                                    <th>Year</th>
+                                    <th>Department</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Team Name</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td><strong>{{ reg.full_name }}</strong></td>
+                                    <td><code>{{ reg.register_number }}</code></td>
+                                    <td>{{ reg.year }}</td>
+                                    <td>{{ reg.department }}</td>
+                                    <td>{{ reg.email }}</td>
+                                    <td>{{ reg.phone_number }}</td>
+                                    <td>
+                                        {% if reg.team_name %}
+                                            <span style="background: hsl(var(--primary) / 0.2); color: hsl(var(--primary)); padding: 4px 12px; border-radius: 20px; font-size: 0.85rem;">
+                                                {{ reg.team_name }}
+                                            </span>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground));">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ reg.registered_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <a href="{% url 'edit_registration' reg.id %}" class="action-btn btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{% url 'delete_registration' reg.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% elif sort_by == 'team' and registrations_by_team %}
+                <!-- Group by Team -->
+                {% for team_name, registrations in registrations_by_team.items %}
+                <div class="group-card">
+                    <div class="group-header" onclick="toggleGroup(this)">
+                        <div class="group-title">
+                            <i class="fas fa-users"></i> {{ team_name|default:"Solo Participants" }}
+                        </div>
+                        <div class="group-count">{{ registrations|length }} registrations</div>
+                    </div>
+                    <div class="group-content">
+                        <table class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>Participant Name</th>
+                                    <th>Reg. No.</th>
+                                    <th>Year</th>
+                                    <th>Department</th>
+                                    <th>Event</th>
+                                    <th>Email</th>
+                                    <th>Phone</th>
+                                    <th>Registered</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for reg in registrations %}
+                                <tr>
+                                    <td><strong>{{ reg.full_name }}</strong></td>
+                                    <td><code>{{ reg.register_number }}</code></td>
+                                    <td>{{ reg.year }}</td>
+                                    <td>{{ reg.department }}</td>
+                                    <td>{{ reg.event.name }}</td>
+                                    <td>{{ reg.email }}</td>
+                                    <td>{{ reg.phone_number }}</td>
+                                    <td>{{ reg.registered_at|date:"M d, Y" }}</td>
+                                    <td>
+                                        <div class="action-btns">
+                                            <a href="{% url 'edit_registration' reg.id %}" class="action-btn btn-edit">
+                                                <i class="fas fa-edit"></i> Edit
+                                            </a>
+                                            <form method="POST" action="{% url 'delete_registration' reg.id %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this registration?');">
+                                                {% csrf_token %}
+                                                <button type="submit" class="action-btn btn-delete">
+                                                    <i class="fas fa-trash"></i> Delete
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+                {% endfor %}
+            
+            {% else %}
+                <!-- Default view or empty -->
+                <div class="empty-state">
+                    <div class="empty-icon"><i class="fas fa-database"></i></div>
+                    <div class="empty-text">No registrations found matching your criteria</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<script>
+    // Toggle group cards
+    function toggleGroup(header) {
+        const content = header.nextElementSibling;
+        const isActive = content.classList.contains('active');
+        
+        // Toggle current
+        content.classList.toggle('active');
+        content.style.maxHeight = isActive ? '0' : content.scrollHeight + 'px';
+    }
+
+    // Open first group by default
+    document.addEventListener('DOMContentLoaded', function() {
+        const firstGroup = document.querySelector('.group-header');
+        if (firstGroup) {
+            toggleGroup(firstGroup);
+        }
+    });
+
+    // Auto-scroll to active sort button
+    document.addEventListener('DOMContentLoaded', function() {
+        const activeSort = document.querySelector('.sort-btn.active');
+        if (activeSort) {
+            activeSort.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+        }
+    });
+</script>
+{% endblock %}

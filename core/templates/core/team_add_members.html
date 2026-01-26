@@ -1,0 +1,685 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Team Members - {{ team.name }} - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 92% 48%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 22% 14%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 7%;
+        --border: 220 18% 22%;
+        --muted-foreground: 220 12% 65%;
+        --stranger-yellow: 45 98% 80%;
+        --stranger-orange: 25 96% 56%;
+    }
+
+    body {
+        padding-top: 0 !important;
+        background: hsl(0 0% 2%) !important;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+        padding-top: 210px;
+    }
+
+    /* Header Section */
+    .add-members-hero {
+        position: relative;
+        padding: 80px 0 40px;
+        background: linear-gradient(45deg, 
+            hsl(0 0% 2% / 0.1), 
+            hsl(220 22% 14% / 0.1),
+            hsl(0 0% 2% / 0.1));
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+        border-bottom: 3px solid hsl(var(--primary));
+    }
+
+    .members-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+
+    .members-subtitle {
+        font-size: 1.4rem;
+        color: hsl(var(--stranger-yellow));
+        opacity: 0.9;
+    }
+
+    /* Content Area */
+    .members-content {
+        padding: 60px 0;
+        background: hsl(0 0% 2%);
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: linear-gradient(145deg, 
+            hsl(0 0% 7%) 0%, 
+            hsl(220 18% 10%) 100%);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 40px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .section-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .section-header i {
+        font-size: 2.5rem;
+        filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+    }
+
+    /* Progress Bar */
+    .progress-box {
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 30px;
+    }
+
+    .progress-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 15px;
+        font-weight: 600;
+    }
+
+    .progress-bar-custom {
+        height: 30px;
+        background: hsl(var(--secondary) / 0.5);
+        border-radius: 10px;
+        overflow: hidden;
+        margin-bottom: 15px;
+    }
+
+    .progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: hsl(0 0% 100%);
+        font-weight: 700;
+        font-size: 0.9rem;
+        transition: width 0.3s ease;
+    }
+
+    .progress-info {
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Form Inputs */
+    .form-group {
+        margin-bottom: 20px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 8px;
+        font-size: 0.95rem;
+    }
+
+    .form-control {
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 12px 15px;
+        background: hsl(var(--card));
+        color: hsl(var(--foreground));
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+        outline: none;
+    }
+
+    /* Submit Button */
+    .btn-submit {
+        background: linear-gradient(135deg, hsl(0 92% 48%), hsl(0 100% 50%));
+        color: hsl(0 0% 100%);
+        border: none;
+        padding: 15px 40px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        width: 100%;
+        margin-top: 20px;
+        font-size: 1rem;
+    }
+
+    .btn-submit:hover {
+        box-shadow: 0 10px 25px hsl(0 92% 48% / 0.3);
+    }
+
+    .btn-submit:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    /* Members List */
+    .members-list-section {
+        background: hsl(0 0% 2%);
+        padding: 60px 0;
+    }
+
+    .members-list-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(90deg, 
+            transparent, 
+            transparent 50px, 
+            hsl(var(--primary) / 0.03) 50px, 
+            hsl(var(--primary) / 0.03) 100px);
+    }
+
+    .table-custom {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 30px;
+        background: transparent;
+        color: hsl(var(--foreground));
+    }
+
+    .table-custom thead {
+        background: hsl(var(--secondary) / 0.5);
+        border-bottom: 2px solid hsl(var(--primary));
+    }
+
+    .table-custom thead th {
+        padding: 15px;
+        text-align: left;
+        color: hsl(var(--primary));
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        font-size: 0.9rem;
+        border: none;
+    }
+
+    .table-custom tbody tr {
+        border-bottom: 1px solid hsl(var(--border));
+        transition: all 0.3s ease;
+    }
+
+    .table-custom tbody tr:hover {
+        background: hsl(var(--secondary) / 0.3);
+        transform: translateX(5px);
+    }
+
+    .table-custom td {
+        padding: 15px;
+        color: hsl(var(--foreground));
+        border: none;
+        border-bottom: 1px solid hsl(var(--border));
+    }
+
+    .badge-custom {
+        display: inline-block;
+        padding: 6px 12px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-leader {
+        background: linear-gradient(135deg, hsl(0 92% 48% / 0.3), hsl(0 92% 60% / 0.3));
+        color: hsl(0 92% 60%);
+        border: 1px solid hsl(0 92% 60%);
+    }
+
+    .badge-joined {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 60%);
+        border: 1px solid hsl(0 92% 60%);
+    }
+
+    .badge-pending {
+        background: hsl(var(--stranger-yellow) / 0.2);
+        color: hsl(var(--stranger-yellow));
+        border: 1px solid hsl(var(--stranger-yellow));
+    }
+
+    .badge-declined {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 60%);
+        border: 1px solid hsl(0 92% 60%);
+    }
+
+    /* Action Buttons */
+    .btn-remove {
+        background: transparent;
+        border: 1px solid hsl(0 92% 48%);
+        color: hsl(0 92% 60%);
+        padding: 8px 15px;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+
+    .btn-remove:hover {
+        background: hsl(0 92% 48% / 0.1);
+    }
+
+    /* Info Box */
+    .info-box {
+        background: linear-gradient(145deg, 
+            hsl(0 0% 7%) 0%, 
+            hsl(220 18% 10%) 100%);
+        border: 2px solid hsl(var(--primary) / 0.3);
+        border-radius: 15px;
+        padding: 25px;
+        margin-top: 40px;
+    }
+
+    .info-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 15px;
+    }
+
+    .info-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .info-list li {
+        padding: 10px 0;
+        border-bottom: 1px solid hsl(var(--border));
+        color: hsl(var(--muted-foreground));
+        font-size: 0.95rem;
+    }
+
+    .info-list li:last-child {
+        border-bottom: none;
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 40px;
+        background: hsl(var(--secondary) / 0.3);
+        border: 2px dashed hsl(var(--border));
+        border-radius: 15px;
+    }
+
+    .empty-icon {
+        font-size: 2.5rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 15px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Alert */
+    .alert-full {
+        margin-bottom: 30px;
+        border-radius: 10px;
+        border: 2px solid;
+        padding: 15px 20px;
+    }
+
+    /* CTA Buttons */
+    .cta-btn {
+        display: inline-block;
+        padding: 12px 30px;
+        background: transparent;
+        border: 2px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+        border-radius: 10px;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.3s ease;
+    }
+
+    .cta-btn:hover {
+        background: hsl(var(--primary) / 0.1);
+        color: hsl(var(--primary));
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .members-title {
+            font-size: 2.5rem;
+        }
+
+        .section-header {
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            padding: 12px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .add-members-hero {
+            padding: 60px 0 30px;
+        }
+
+        .members-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .form-section {
+            padding: 25px;
+        }
+
+        .section-header {
+            font-size: 1.3rem;
+        }
+
+        .table-custom {
+            font-size: 0.9rem;
+        }
+
+        .table-custom th,
+        .table-custom td {
+            padding: 10px;
+        }
+
+        .btn-remove {
+            padding: 6px 12px;
+            font-size: 0.8rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .members-title {
+            font-size: 1.8rem;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .section-header {
+            font-size: 1.1rem;
+        }
+
+        .table-custom {
+            font-size: 0.8rem;
+            overflow-x: auto;
+        }
+
+        .form-group {
+            margin-bottom: 15px;
+        }
+
+        .form-label {
+            font-size: 0.85rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="add-members-hero">
+    <div class="container">
+        <h1 class="members-title">
+            <i class="fas fa-users-plus"></i> Add Team Members
+        </h1>
+        <p class="members-subtitle">{{ team.name }} • {{ event.name }}</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="members-content">
+    <div class="container">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-full alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Team Size Progress -->
+        <div class="progress-box">
+            <div class="progress-label"><i class="fas fa-chart-bar"></i> Team Size Progress</div>
+            <div class="progress-bar-custom">
+                <div class="progress-fill" style="width: {{ progress_percent }}%">
+                    {{ current_member_count }}/{{ event_max_size }} Members
+                </div>
+            </div>
+            <div class="progress-info">
+                <strong>Minimum required:</strong> {{ event_min_size }} | <strong>Maximum allowed:</strong> {{ event_max_size }}
+            </div>
+        </div>
+
+        <!-- Add Member Form -->
+        <div class="form-section">
+            <h2 class="section-header">
+                <i class="fas fa-plus-circle"></i> Add Team Member
+            </h2>
+
+            {% if current_member_count < event_max_size %}
+                <form method="POST" class="needs-validation">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="add_member">
+                    
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px;">
+                        <div class="form-group">
+                            <label for="full_name" class="form-label">Full Name *</label>
+                            <input type="text" class="form-control" id="full_name" name="full_name" placeholder="Enter full name" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="register_number" class="form-label">Register Number *</label>
+                            <input type="text" class="form-control" id="register_number" name="register_number" placeholder="e.g., 21AID001" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email" class="form-label">Email *</label>
+                            <input type="email" class="form-control" id="email" name="email" placeholder="Enter email" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="phone_number" class="form-label">Phone Number *</label>
+                            <input type="tel" class="form-control" id="phone_number" name="phone_number" placeholder="Enter phone number" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="department" class="form-label">Department *</label>
+                            <input type="text" class="form-control" id="department" name="department" placeholder="e.g., Computer Science" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="year" class="form-label">Year *</label>
+                            <input type="text" class="form-control" id="year" name="year" placeholder="e.g., 2nd Year" required>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-submit">
+                        <i class="fas fa-user-plus"></i> Add Member
+                    </button>
+                </form>
+            {% else %}
+                <div class="alert-full" style="background: hsl(0 92% 48% / 0.1); border-color: hsl(0 92% 48%); color: hsl(0 92% 60%);">
+                    <i class="fas fa-info-circle"></i> <strong>Team is full!</strong> No more members can be added.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Members List Section -->
+<section class="members-list-section">
+    <div class="container">
+        <div class="form-section" style="margin-top: 30px;">
+            <h2 class="section-header">
+                <i class="fas fa-list"></i> Team Members ({{ current_member_count }})
+            </h2>
+
+            {% if members %}
+                <div style="overflow-x: auto;">
+                    <table class="table-custom">
+                        <thead>
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Name</th>
+                                <th>Department</th>
+                                <th>Status</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                                <tr>
+                                    <td><code style="color: hsl(var(--primary));">{{ member.registration.register_number }}</code></td>
+                                    <td>
+                                        <strong>{{ member.registration.full_name }}</strong>
+                                        {% if member.registration == team.created_by %}
+                                            <span class="badge-custom badge-leader"><i class="fas fa-crown"></i> Leader</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>{{ member.registration.department }}</td>
+                                    <td>
+                                        {% if member.status == 'joined' %}
+                                            <span class="badge-custom badge-joined"><i class="fas fa-check-circle"></i> Joined</span>
+                                        {% elif member.status == 'pending' %}
+                                            <span class="badge-custom badge-pending"><i class="fas fa-hourglass-half"></i> Pending</span>
+                                        {% else %}
+                                            <span class="badge-custom badge-declined"><i class="fas fa-times-circle"></i> Declined</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if member.registration != team.created_by %}
+                                            <form method="POST" style="display: inline;">
+                                                {% csrf_token %}
+                                                <input type="hidden" name="action" value="remove_member">
+                                                <input type="hidden" name="member_id" value="{{ member.id }}">
+                                                <button type="submit" class="btn-remove" onclick="return confirm('Remove {{ member.registration.full_name }}?')">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </button>
+                                            </form>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground)); font-size: 0.85rem;">—</span>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state" style="margin-top: 30px;">
+                    <div class="empty-icon"><i class="fas fa-users"></i></div>
+                    <div class="empty-text">No members added yet. Use the form above to add members.</div>
+                </div>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Save & Info Section -->
+<section class="members-content">
+    <div class="container">
+        <form method="POST" style="margin-bottom: 40px;">
+            {% csrf_token %}
+            <input type="hidden" name="action" value="save">
+            {% if current_member_count >= event_min_size %}
+                <button type="submit" class="btn-submit" style="background: linear-gradient(135deg, hsl(0 92% 48%), hsl(0 100% 50%));">
+                    <i class="fas fa-check-circle"></i> Save Team & Complete Registration
+                </button>
+            {% else %}
+                <button type="button" class="btn-submit" disabled style="opacity: 0.5; cursor: not-allowed;">
+                    <i class="fas fa-lock"></i> Save Team (Add at least {{ event_min_size }} members first)
+                </button>
+            {% endif %}
+        </form>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <div class="info-title"><i class="fas fa-lightbulb"></i> Important Information</div>
+            <ul class="info-list">
+                <li>✓ You are the <strong>Team Leader</strong></li>
+                <li>✓ Invitations are sent to team members to accept or decline</li>
+                <li>✓ Minimum {{ event_min_size }} members required to participate</li>
+                <li>✓ Maximum team size is {{ event_max_size }} members</li>
+                <li>✓ Click <strong>Save Team</strong> when all members are added</li>
+            </ul>
+        </div>
+
+        <!-- Back Button -->
+        <div style="text-align: center; margin-top: 40px;">
+            <a href="{% url 'team_dashboard' %}" class="cta-btn">
+                <i class="fas fa-arrow-left"></i> Back to Team
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<!-- No background effects JavaScript needed -->
+{% endblock %}

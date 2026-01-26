@@ -1,0 +1,257 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Create Team - ARTIFA FEST{% endblock %}
+
+{% block content %}
+<!-- Background Reveal Effect -->
+<div class="background-container">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<div class="container mt-5 mb-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">
+                        <i class="fas fa-users"></i> Create Your Team
+                    </h5>
+                </div>
+                
+                <div class="card-body p-4">
+                    <div class="alert alert-info" role="alert">
+                        <i class="fas fa-info-circle"></i>
+                        <strong>Event:</strong> {{ event.name }}<br>
+                        <strong>Team Size:</strong> {{ event.min_team_size }}-{{ event.max_team_size }} members
+                    </div>
+                    
+                    {% if messages %}
+                        {% for message in messages %}
+                            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                                {{ message }}
+                                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                            </div>
+                        {% endfor %}
+                    {% endif %}
+                    
+                    <form method="POST" class="needs-validation" novalidate>
+                        {% csrf_token %}
+                        
+                        <div class="mb-3">
+                            <label for="team_name" class="form-label">
+                                <i class="fas fa-heading"></i> Team Name *
+                            </label>
+                            <input 
+                                type="text" 
+                                class="form-control form-control-lg" 
+                                id="team_name" 
+                                name="team_name"
+                                placeholder="e.g., Phoenix Warriors, Code Ninjas"
+                                required
+                                maxlength="200"
+                            >
+                            <small class="form-text text-muted">
+                                Choose a unique and creative team name
+                            </small>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="description" class="form-label">
+                                <i class="fas fa-pen"></i> Team Description
+                            </label>
+                            <textarea 
+                                class="form-control" 
+                                id="description" 
+                                name="description"
+                                rows="4"
+                                placeholder="Tell us about your team (optional)"
+                            ></textarea>
+                            <small class="form-text text-muted">
+                                This helps team members understand your team's goals
+                            </small>
+                        </div>
+                        
+                        <div class="d-grid gap-2">
+                            <button type="submit" class="btn btn-primary btn-lg">
+                                <i class="fas fa-check-circle"></i> Create Team
+                            </button>
+                            <a href="{% url 'team_dashboard' %}" class="btn btn-outline-secondary">
+                                <i class="fas fa-arrow-left"></i> Back to Dashboard
+                            </a>
+                        </div>
+                    </form>
+                    
+                    <hr class="my-4">
+                    
+                    <div class="alert alert-light border-2 border-primary" role="alert">
+                        <h6 class="alert-heading"><i class="fas fa-rocket"></i> Next Steps:</h6>
+                        <ol class="mb-0 small">
+                            <li>Create your team with a unique name</li>
+                            <li>You will be registered as the team leader</li>
+                            <li>Add team members using their register numbers</li>
+                            <li>Members can accept or decline your invitations</li>
+                            <li>Your team is complete when all members join!</li>
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% block extra_js %}
+<script>
+    // Lightning Effects
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 5,
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+        if (Math.random() < config.branchChance) {
+            drawLightning(midX, midY, midX + (Math.random() - 0.5) * displace * 2, midY + Math.random() * displace * 2, displace / 2, depth + 1);
+        }
+    }
+
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (!blackCover || !noiseLayer) return;
+        const maskGradients = [];
+        for (let i = 0; i <= 10; i++) {
+            const t = i / 10;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            maskGradients.push(`radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`);
+        }
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+        createLightningHoles(startX, 0, endX, endY);
+        drawLightning(startX, 0, endX, endY, 90);
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            drawLightning(startX, 0, endX, endY, 90 * alpha);
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    setInterval(() => { lightningStrike(); }, 2000);
+    setTimeout(() => { lightningStrike(); }, 500);
+
+    document.addEventListener("mousemove", function(e) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Form validation
+        var forms = document.querySelectorAll('.needs-validation');
+        Array.prototype.slice.call(forms).forEach(function(form) {
+            form.addEventListener('submit', function(event) {
+                if (!form.checkValidity()) {
+                    event.preventDefault();
+                    event.stopPropagation();
+                }
+                form.classList.add('was-validated');
+            }, false);
+        });
+    });
+</script>
+{% endblock %}

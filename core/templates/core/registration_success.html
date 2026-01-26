@@ -1,0 +1,1057 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Portal Entry Confirmed - The Upside Down{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Success Hero */
+    .success-hero {
+        position: relative;
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .success-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 50% 30%, hsl(142 76% 36% / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 30% 70%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 2px, 
+                hsl(var(--primary) / 0.03) 2px, 
+                hsl(var(--primary) / 0.03) 4px);
+        animation: portal-open 3s ease-out;
+    }
+
+    @keyframes portal-open {
+        0% {
+            transform: scale(0.5);
+            opacity: 0;
+        }
+        100% {
+            transform: scale(1);
+            opacity: 1;
+        }
+    }
+
+    .success-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, 
+            hsl(142 76% 36%), 
+            hsl(142 76% 60%),
+            hsl(142 76% 36%));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 30px hsl(142 76% 36% / 0.5);
+        position: relative;
+        display: inline-block;
+        animation: success-glow 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes success-glow {
+        0% {
+            text-shadow: 0 0 20px hsl(142 76% 36% / 0.7),
+                         0 0 40px hsl(142 76% 36% / 0.5),
+                         0 0 60px hsl(142 76% 36% / 0.3);
+        }
+        100% {
+            text-shadow: 0 0 30px hsl(142 76% 36% / 0.8),
+                         0 0 60px hsl(142 76% 36% / 0.6),
+                         0 0 90px hsl(142 76% 36% / 0.4);
+        }
+    }
+
+    .success-title::after {
+        content: '';
+        position: absolute;
+        bottom: -20px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 200px;
+        height: 5px;
+        background: linear-gradient(90deg, 
+            transparent, 
+            hsl(142 76% 36%), 
+            hsl(142 76% 60%), 
+            hsl(142 76% 36%), 
+            transparent);
+        border-radius: 3px;
+    }
+
+    /* Success Card */
+    .success-section {
+        padding: 50px 0 100px;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .success-card {
+        background: var(--gradient-card);
+        backdrop-filter: blur(20px);
+        border: 3px solid hsl(142 76% 36%);
+        border-radius: 25px;
+        padding: 60px 40px;
+        box-shadow: 
+            0 0 30px hsl(142 76% 36% / 0.3),
+            0 0 60px hsl(142 76% 36% / 0.1),
+            var(--shadow-card);
+        position: relative;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .success-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(142 76% 36%), hsl(142 76% 60%));
+        animation: success-border 3s ease-in-out infinite alternate;
+    }
+
+    @keyframes success-border {
+        0% { opacity: 0.7; }
+        100% { opacity: 1; }
+    }
+
+    .success-icon {
+        font-size: 6rem;
+        color: hsl(142 76% 60%);
+        margin-bottom: 30px;
+        filter: drop-shadow(0 0 20px hsl(142 76% 60% / 0.5));
+        animation: icon-bounce 2s ease-in-out infinite;
+    }
+
+    @keyframes icon-bounce {
+        0%, 100% { transform: translateY(0) scale(1); }
+        50% { transform: translateY(-20px) scale(1.1); }
+    }
+
+    .success-heading {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: hsl(142 76% 60%);
+        margin-bottom: 20px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .success-text {
+        font-size: 1.3rem;
+        color: hsl(var(--foreground));
+        line-height: 1.8;
+        margin-bottom: 25px;
+    }
+
+    .success-details {
+        background: hsl(var(--secondary) / 0.5);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 30px;
+        margin: 40px 0;
+        text-align: left;
+    }
+
+    .details-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 25px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .details-title i {
+        color: hsl(var(--primary));
+        filter: drop-shadow(0 0 5px hsl(var(--primary) / 0.5));
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+        margin-bottom: 30px;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .detail-label {
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 8px;
+    }
+
+    .detail-value {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+    }
+
+    .events-list {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .events-list li {
+        background: hsl(var(--card));
+        border: 1px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 15px 20px;
+        margin-bottom: 10px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.3s ease;
+    }
+
+    .events-list li:hover {
+        border-color: hsl(var(--primary));
+        transform: translateX(5px);
+    }
+
+    .event-name {
+        color: hsl(var(--foreground));
+        font-weight: 600;
+    }
+
+    .event-type {
+        display: inline-block;
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .type-technical {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-red-glow)));
+        color: hsl(var(--primary-foreground));
+    }
+
+    .type-nontech {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+        color: hsl(var(--background));
+    }
+
+    .confirmation-note {
+        background: hsl(142 76% 36% / 0.1);
+        border: 2px solid hsl(142 76% 36%);
+        border-radius: 15px;
+        padding: 25px;
+        margin: 40px 0;
+        text-align: center;
+    }
+
+    .confirmation-note i {
+        color: hsl(142 76% 60%);
+        font-size: 2.5rem;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 10px hsl(142 76% 60% / 0.5));
+    }
+
+    /* Action Buttons */
+    .action-section {
+        margin-top: 50px;
+    }
+
+    .action-buttons {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .action-button {
+        padding: 18px 40px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 1.1rem;
+    }
+
+    .action-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(0 100% 100% / 0.2), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+
+    .action-button:hover::before {
+        left: 100%;
+    }
+
+    .action-button:hover {
+        transform: translateY(-5px);
+    }
+
+    .btn-primary-action {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .btn-primary-action:hover {
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    .btn-outline-action {
+        background: transparent;
+        border: 2px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+    }
+
+    .btn-outline-action:hover {
+        background: hsl(var(--primary) / 0.1);
+        border-color: hsl(var(--stranger-red-glow));
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    /* Next Steps */
+    .next-steps {
+        background: hsl(var(--background));
+        padding: 80px 0;
+        position: relative;
+    }
+
+    .steps-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 50px;
+        text-align: center;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .steps-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 30px;
+    }
+
+    .step-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .step-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 5px;
+        height: 100%;
+        background: linear-gradient(to bottom, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .step-card:hover {
+        transform: translateY(-10px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .step-number {
+        display: inline-block;
+        width: 60px;
+        height: 60px;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border-radius: 50%;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 900;
+        line-height: 60px;
+        margin-bottom: 25px;
+    }
+
+    .step-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 15px;
+    }
+
+    .step-desc {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.6;
+    }
+
+    /* Countdown Timer */
+    .countdown-section {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        text-align: center;
+        position: relative;
+    }
+
+    .countdown-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: hsl(var(--stranger-yellow));
+        margin-bottom: 40px;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .countdown-timer {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .countdown-item {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 30px 20px;
+        min-width: 120px;
+        transition: all 0.3s ease;
+    }
+
+    .countdown-item:hover {
+        border-color: hsl(var(--primary));
+        transform: translateY(-5px);
+    }
+
+    .countdown-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+        margin-bottom: 10px;
+    }
+
+    .countdown-label {
+        font-size: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .success-title {
+            font-size: 3rem;
+        }
+        
+        .success-card {
+            padding: 50px 30px;
+        }
+        
+        .action-buttons {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .action-button {
+            width: 100%;
+            max-width: 300px;
+            justify-content: center;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .success-hero {
+            padding: 120px 0 60px;
+        }
+        
+        .success-title {
+            font-size: 2.5rem;
+        }
+        
+        .success-heading {
+            font-size: 2rem;
+        }
+        
+        .success-text {
+            font-size: 1.1rem;
+        }
+        
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .countdown-item {
+            min-width: 100px;
+            padding: 20px 15px;
+        }
+        
+        .countdown-value {
+            font-size: 2.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .success-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+        
+        .success-icon {
+            font-size: 4rem;
+        }
+        
+        .events-list li {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 10px;
+        }
+        
+        .countdown-timer {
+            gap: 10px;
+        }
+        
+        .countdown-item {
+            min-width: 80px;
+            padding: 15px 10px;
+        }
+        
+        .countdown-value {
+            font-size: 2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background Reveal Effect -->
+<div class="background-container">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<!-- Success Hero -->
+<section class="success-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="success-title">PORTAL ENTRY CONFIRMED</h1>
+                <p class="lead" style="color: hsl(var(--stranger-yellow)); font-size: 1.5rem;">
+                    Welcome to the Upside Down, Explorer!
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Success Card -->
+<section class="success-section">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <div class="success-card">
+                    <div class="success-icon">
+                        <i class="fas fa-check-circle"></i>
+                    </div>
+                    
+                    <h2 class="success-heading">Interdimensional Access Granted</h2>
+                    
+                    <p class="success-text">
+                        Your coordinates have been successfully recorded in the interdimensional registry. 
+                        The portal to ARTIFA FEST is now open for you!
+                    </p>
+                    
+                    <div class="success-details">
+                        <h3 class="details-title">
+                            <i class="fas fa-info-circle"></i>Your Portal Entry Details
+                        </h3>
+                        
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Explorer Name</span>
+                                <span class="detail-value">{{ registration.full_name|default:"Alex Chen" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Register Number</span>
+                                <span class="detail-value">{{ registration.register_number|default:"21AID001" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Email</span>
+                                <span class="detail-value">{{ registration.email|default:"alex@college.edu" }}</span>
+                            </div>
+                            <div class="detail-item">
+                                <span class="detail-label">Registration ID</span>
+                                <span class="detail-value">#ART{{ registration.id|default:"2026001"|stringformat:"07d" }}</span>
+                            </div>
+                        </div>
+                        
+                        <h4 class="details-title" style="font-size: 1.3rem;">
+                            <i class="fas fa-portal-enter"></i>Selected Portal
+                        </h4>
+                        
+                        <ul class="events-list">
+                            {% if registration and registration.event %}
+                            <li>
+                                <span class="event-name">{{ registration.event.name }}</span>
+                                <span class="event-type {% if registration.event.event_type == 'technical' %}type-technical{% else %}type-nontech{% endif %}">
+                                    {{ registration.event.event_type|title }}
+                                </span>
+                            </li>
+                            {% else %}
+                            <li>
+                                <span class="event-name">Code Demogorgon</span>
+                                <span class="event-type type-technical">Technical</span>
+                            </li>
+                            {% endif %}
+                        </ul>
+                    
+                    {% if registration and registration.team_name %}
+                    <div style="margin-top: 25px; padding-top: 25px; border-top: 1px solid hsl(var(--border));">
+                        <h4 class="details-title" style="font-size: 1.3rem;">
+                            <i class="fas fa-users"></i>Team Information
+                        </h4>
+                        <div class="details-grid">
+                            <div class="detail-item">
+                                <span class="detail-label">Team Name</span>
+                                <span class="detail-value">{{ registration.team_name }}</span>
+                            </div>
+                            {% if team_password %}
+                            <div class="detail-item">
+                                <span class="detail-label">Team Password</span>
+                                <span class="detail-value" style="font-family: 'Courier New', monospace; background: hsl(var(--card)); padding: 8px 12px; border-radius: 6px; letter-spacing: 2px; color: hsl(142 76% 60%);">{{ team_password }}</span>
+                            </div>
+                            {% endif %}
+                            <div class="detail-item">
+                                <span class="detail-label">Team Members</span>
+                                <span class="detail-value">{{ registration.team_members|default:"TBD" }}</span>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+                    </div>
+                    
+                    <div class="confirmation-note">
+                        <i class="fas fa-envelope-open-text"></i>
+                        <h4 style="color: hsl(142 76% 60%); margin-bottom: 15px;">Confirmation Sent</h4>
+                        <p style="color: hsl(var(--foreground)); margin-bottom: 0;">
+                            A portal confirmation message has been dispatched to your interdimensional communicator 
+                            <strong>{{ registration.email|default:"your email" }}</strong>. 
+                            Keep it safe for reference.
+                        </p>
+                    </div>
+                    
+                    <div class="action-section">
+                        <div class="action-buttons">
+                            {% if registration and registration.team_name %}
+                            <a href="{% url 'team_details' registration.id %}" class="action-button btn-primary-action">
+                                <i class="fas fa-users-crown"></i>View Team Portal
+                            </a>
+                            {% endif %}
+                            <a href="{% url 'home' %}" class="action-button btn-primary-action">
+                                <i class="fas fa-home"></i>Return to Home Base
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Next Steps -->
+<section class="next-steps">
+    <div class="container">
+        <h2 class="steps-title">Your Journey Ahead</h2>
+        
+        <div class="steps-grid">
+            <div class="step-card">
+                <div class="step-number">1</div>
+                <h3 class="step-title">Confirmation Email</h3>
+                <p class="step-desc">
+                    Check your email within 24 hours for your portal access details and QR code.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">2</div>
+                <h3 class="step-title">Prepare Your Gear</h3>
+                <p class="step-desc">
+                    Review event requirements and ensure you have all necessary equipment ready.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">3</div>
+                <h3 class="step-title">Team Coordination</h3>
+                <p class="step-desc">
+                    Connect with your team members and strategize for the upcoming challenges.
+                </p>
+            </div>
+            
+            <div class="step-card">
+                <div class="step-number">4</div>
+                <h3 class="step-title">Event Day Arrival</h3>
+                <p class="step-desc">
+                    Arrive 30 minutes early with your college ID and confirmation for portal entry.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Countdown Timer -->
+<section class="countdown-section">
+    <div class="container">
+        <h2 class="countdown-title">Portal Opens In</h2>
+        
+        <div class="countdown-timer">
+            <div class="countdown-item">
+                <div class="countdown-value" id="days">00</div>
+                <div class="countdown-label">Days</div>
+            </div>
+            
+            <div class="countdown-item">
+                <div class="countdown-value" id="hours">00</div>
+                <div class="countdown-label">Hours</div>
+            </div>
+            
+            <div class="countdown-item">
+                <div class="countdown-value" id="minutes">00</div>
+                <div class="countdown-label">Minutes</div>
+            </div>
+            
+            <div class="countdown-item">
+                <div class="countdown-value" id="seconds">00</div>
+                <div class="countdown-label">Seconds</div>
+            </div>
+        </div>
+        
+        <p class="mt-4" style="color: hsl(var(--muted-foreground));">
+            <i class="fas fa-calendar-day me-2"></i>
+            February 7, 2026 • 9:00 AM
+        </p>
+    </div>
+</section>
+
+<!-- Final CTA -->
+<section style="padding: 80px 0; background: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--stranger-red-glow) / 0.9));">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="mb-4" style="color: hsl(var(--primary-foreground)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem;">
+                    <i class="fas fa-share-alt me-3"></i>Share the Adventure
+                </h2>
+                <p class="mb-4" style="color: hsl(var(--primary-foreground) / 0.9); font-size: 1.2rem;">
+                    Know other explorers who might want to join the Upside Down? Invite them to register before portals close!
+                </p>
+                <div class="social-share d-flex justify-content-center gap-3">
+                    <a href="#" class="btn btn-lg" style="background: hsl(var(--background)); color: hsl(var(--primary)); border-radius: 50px; padding: 12px 30px;">
+                        <i class="fab fa-whatsapp me-2"></i>WhatsApp
+                    </a>
+                    <a href="#" class="btn btn-lg" style="background: hsl(var(--background)); color: hsl(var(--primary)); border-radius: 50px; padding: 12px 30px;">
+                        <i class="fab fa-telegram me-2"></i>Telegram
+                    </a>
+                    <a href="#" class="btn btn-lg" style="background: hsl(var(--background)); color: hsl(var(--primary)); border-radius: 50px; padding: 12px 30px;">
+                        <i class="fas fa-envelope me-2"></i>Email
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lightning Effects
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 3,
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+        if (Math.random() < config.branchChance) {
+            drawLightning(midX, midY, midX + (Math.random() - 0.5) * displace * 2, midY + Math.random() * displace * 2, displace / 2, depth + 1);
+        }
+    }
+
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (!blackCover || !noiseLayer) return;
+        const maskGradients = [];
+        for (let i = 0; i <= 10; i++) {
+            const t = i / 10;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            maskGradients.push(`radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`);
+        }
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+        createLightningHoles(startX, 0, endX, endY);
+        drawLightning(startX, 0, endX, endY, 90);
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            drawLightning(startX, 0, endX, endY, 90 * alpha);
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    setInterval(() => { lightningStrike(); }, 2000);
+    setTimeout(() => { lightningStrike(); }, 500);
+
+    document.addEventListener("mousemove", function(e) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+        // Countdown timer
+        const eventDate = new Date('February 7, 2026 09:00:00').getTime();
+        
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const timeLeft = eventDate - now;
+            
+            const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((timeLeft % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((timeLeft % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((timeLeft % (1000 * 60)) / 1000);
+            
+            document.getElementById('days').textContent = String(days).padStart(2, '0');
+            document.getElementById('hours').textContent = String(hours).padStart(2, '0');
+            document.getElementById('minutes').textContent = String(minutes).padStart(2, '0');
+            document.getElementById('seconds').textContent = String(seconds).padStart(2, '0');
+            
+            if (timeLeft < 0) {
+                clearInterval(countdownInterval);
+                document.querySelector('.countdown-title').textContent = 'The Portal Is Open!';
+                document.querySelectorAll('.countdown-item').forEach(item => {
+                    item.querySelector('.countdown-value').textContent = '00';
+                });
+            }
+        }
+        
+        updateCountdown();
+        const countdownInterval = setInterval(updateCountdown, 1000);
+        
+        // Animate step cards on scroll
+        const observerOptions = {
+            threshold: 0.2,
+            rootMargin: '0px 0px -100px 0px'
+        };
+        
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+        
+        document.querySelectorAll('.step-card').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(20px)';
+            card.style.transition = 'all 0.6s ease';
+            observer.observe(card);
+        });
+        
+        // Add confetti effect on page load
+        function createConfetti() {
+            const colors = [
+                'hsl(var(--primary))',
+                'hsl(var(--stranger-yellow))',
+                'hsl(142 76% 60%)',
+                'hsl(var(--stranger-orange))'
+            ];
+            
+            for (let i = 0; i < 50; i++) {
+                const confetti = document.createElement('div');
+                confetti.style.position = 'fixed';
+                confetti.style.width = '10px';
+                confetti.style.height = '10px';
+                confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                confetti.style.borderRadius = '50%';
+                confetti.style.left = Math.random() * 100 + 'vw';
+                confetti.style.top = '-20px';
+                confetti.style.opacity = '0.7';
+                confetti.style.zIndex = '9999';
+                confetti.style.pointerEvents = 'none';
+                
+                document.body.appendChild(confetti);
+                
+                const animation = confetti.animate([
+                    { transform: 'translateY(0) rotate(0deg)', opacity: 0.7 },
+                    { transform: `translateY(${window.innerHeight + 20}px) rotate(${Math.random() * 360}deg)`, opacity: 0 }
+                ], {
+                    duration: Math.random() * 3000 + 2000,
+                    easing: 'cubic-bezier(0.4, 0, 0.2, 1)'
+                });
+                
+                animation.onfinish = () => confetti.remove();
+            }
+        }
+        
+        // Trigger confetti on page load
+        setTimeout(createConfetti, 500);
+        
+        // Add hover effects to countdown items
+        const countdownItems = document.querySelectorAll('.countdown-item');
+        countdownItems.forEach(item => {
+            item.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-5px) scale(1.05)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(-5px)';
+            });
+        });
+    });
+</script>
+{% endblock %}

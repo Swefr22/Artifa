@@ -1,0 +1,601 @@
+<!-- SweKeer Chatbot Widget -->
+<div id="chatbot-widget" class="swekeer-chatbot-widget">
+    <!-- Chat Header -->
+    <div class="chatbot-header">
+        <div class="chatbot-header-content">
+            <div class="chatbot-avatar">
+                <span class="avatar-icon"><i class='fas fa-robot'></i></span>
+            </div>
+            <div class="chatbot-title">
+                <h3>SweKeer</h3>
+                <p>ARTIFA FEST Guide</p>
+            </div>
+        </div>
+        <button class="chatbot-toggle" id="chatbot-toggle">
+            <span class="toggle-icon">✕</span>
+        </button>
+    </div>
+
+    <!-- Chat Messages -->
+    <div class="chatbot-messages" id="chatbot-messages">
+        <div class="message bot-message">
+            <div class="message-avatar"><i class='fas fa-robot'></i></div>
+            <div class="message-content">
+                <p><i class='fas fa-hand-paper'></i> Hi! I'm <strong>SweKeer</strong>, your ARTIFA FEST assistant! Ask me about events, timeline, or anything about this festival. Type <strong>'help'</strong> to see what I can do!</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chat Input -->
+    <div class="chatbot-input-area">
+        <form id="chatbot-form" onsubmit="sendChatMessage(event)">
+            <input 
+                type="text" 
+                id="chatbot-input" 
+                class="chatbot-input" 
+                placeholder="Ask me about events, timeline..." 
+                autocomplete="off"
+            >
+            <button type="submit" class="chatbot-send-btn">
+                <span>➤</span>
+            </button>
+        </form>
+        <div class="chatbot-suggestions">
+            <small>Try: "What events?", "Tell me timeline", "Help"</small>
+        </div>
+    </div>
+</div>
+
+<!-- Floating Chatbot Toggle Button -->
+<button class="chatbot-float-btn" id="chatbot-float-btn" title="Chat with SweKeer">
+    <span class="float-icon"><i class='fas fa-comments'></i></span>
+    <span class="float-label">SweKeer</span>
+</button>
+
+<style>
+/* SweKeer Chatbot Styles */
+
+:root {
+    --swekeer-primary: #e02401;
+    --swekeer-dark: #0c0c0c;
+    --swekeer-light: #f5f5f5;
+    --swekeer-border: #1a1a2e;
+}
+
+/* Floating Button */
+.chatbot-float-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 65px;
+    height: 65px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--swekeer-primary), #f97316);
+    border: none;
+    color: white;
+    font-size: 28px;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(224, 36, 1, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    transition: all 0.3s ease;
+    z-index: 1040;
+    overflow: hidden;
+    padding: 0;
+}
+
+.chatbot-float-btn:hover {
+    transform: scale(1.1);
+    box-shadow: 0 6px 30px rgba(224, 36, 1, 0.7);
+}
+
+.chatbot-float-btn:active {
+    transform: scale(0.95);
+}
+
+.float-label {
+    font-size: 11px;
+    font-weight: 700;
+    display: none;
+    white-space: nowrap;
+}
+
+.chatbot-float-btn:hover .float-label {
+    display: block;
+}
+
+/* Chatbot Widget */
+.swekeer-chatbot-widget {
+    position: fixed;
+    bottom: 110px;
+    right: 30px;
+    width: 400px;
+    height: 500px;
+    background: var(--swekeer-light);
+    border-radius: 15px;
+    box-shadow: 0 8px 40px rgba(0, 0, 0, 0.3);
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+    z-index: 1041;
+    border: 2px solid var(--swekeer-primary);
+    animation: slideUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+.swekeer-chatbot-widget.active {
+    display: flex;
+}
+
+@keyframes slideUp {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Chat Header */
+.chatbot-header {
+    background: linear-gradient(135deg, var(--swekeer-dark), var(--swekeer-border));
+    color: white;
+    padding: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 2px solid var(--swekeer-primary);
+    gap: 10px;
+}
+
+.chatbot-header-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex: 1;
+}
+
+.chatbot-avatar {
+    font-size: 32px;
+    display: flex;
+    align-items: center;
+}
+
+.chatbot-title h3 {
+    margin: 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.chatbot-title p {
+    margin: 0;
+    font-size: 0.75rem;
+    color: #ffcc00;
+    opacity: 0.9;
+}
+
+.chatbot-toggle {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 20px;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.3s ease;
+    border-radius: 50%;
+}
+
+.chatbot-toggle:hover {
+    background: rgba(224, 36, 1, 0.2);
+    color: var(--swekeer-primary);
+}
+
+/* Messages Container */
+.chatbot-messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    background: var(--swekeer-light);
+}
+
+.chatbot-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chatbot-messages::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb {
+    background: rgba(224, 36, 1, 0.3);
+    border-radius: 3px;
+}
+
+.chatbot-messages::-webkit-scrollbar-thumb:hover {
+    background: rgba(224, 36, 1, 0.5);
+}
+
+/* Messages */
+.message {
+    display: flex;
+    gap: 10px;
+    animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.message-avatar {
+    font-size: 20px;
+    flex-shrink: 0;
+}
+
+.message-content {
+    flex: 1;
+    padding: 10px 12px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.4;
+}
+
+.message-content p {
+    margin: 0;
+}
+
+.message-content strong {
+    color: var(--swekeer-primary);
+    font-weight: 700;
+}
+
+.message-content em {
+    color: #666;
+    font-style: italic;
+}
+
+/* Bot Messages */
+.bot-message .message-content {
+    background: linear-gradient(135deg, rgba(224, 36, 1, 0.1), rgba(249, 115, 22, 0.1));
+    border: 1px solid rgba(224, 36, 1, 0.2);
+    color: #333;
+}
+
+/* User Messages */
+.user-message {
+    justify-content: flex-end;
+}
+
+.user-message .message-content {
+    background: linear-gradient(135deg, var(--swekeer-primary), #f97316);
+    color: white;
+    border: none;
+}
+
+.user-message .message-avatar {
+    order: 2;
+}
+
+/* Input Area */
+.chatbot-input-area {
+    padding: 12px;
+    border-top: 1px solid rgba(224, 36, 1, 0.2);
+    background: white;
+}
+
+#chatbot-form {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 8px;
+}
+
+.chatbot-input {
+    flex: 1;
+    padding: 10px 12px;
+    border: 2px solid rgba(224, 36, 1, 0.3);
+    border-radius: 8px;
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.3s ease;
+    outline: none;
+}
+
+.chatbot-input:focus {
+    border-color: var(--swekeer-primary);
+    box-shadow: 0 0 0 3px rgba(224, 36, 1, 0.1);
+}
+
+.chatbot-input::placeholder {
+    color: #999;
+}
+
+.chatbot-send-btn {
+    padding: 10px 15px;
+    background: linear-gradient(135deg, var(--swekeer-primary), #f97316);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.1rem;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 45px;
+    font-weight: 700;
+}
+
+.chatbot-send-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(224, 36, 1, 0.4);
+}
+
+.chatbot-send-btn:active {
+    transform: translateY(0);
+}
+
+.chatbot-suggestions {
+    text-align: center;
+    font-size: 0.75rem;
+    color: #999;
+    padding: 0 5px;
+}
+
+.chatbot-suggestions small {
+    display: block;
+    margin-top: 5px;
+}
+
+/* Loading indicator */
+.message-loading {
+    display: flex;
+    gap: 4px;
+    align-items: center;
+}
+
+.message-loading span {
+    width: 6px;
+    height: 6px;
+    background: var(--swekeer-primary);
+    border-radius: 50%;
+    animation: pulse 1.4s infinite;
+}
+
+.message-loading span:nth-child(2) {
+    animation-delay: 0.2s;
+}
+
+.message-loading span:nth-child(3) {
+    animation-delay: 0.4s;
+}
+
+@keyframes pulse {
+    0%, 60%, 100% {
+        opacity: 0.3;
+    }
+    30% {
+        opacity: 1;
+    }
+}
+
+/* Responsive */
+@media (max-width: 480px) {
+    .swekeer-chatbot-widget {
+        width: calc(100% - 20px);
+        height: 400px;
+        bottom: 100px;
+        right: 10px;
+    }
+    
+    .chatbot-float-btn {
+        bottom: 20px;
+        right: 20px;
+        width: 55px;
+        height: 55px;
+        font-size: 24px;
+    }
+    
+    .chatbot-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+    }
+}
+
+@media (max-width: 360px) {
+    .swekeer-chatbot-widget {
+        width: calc(100% - 10px);
+        height: 350px;
+    }
+    
+    .chatbot-title h3 {
+        font-size: 1rem;
+    }
+    
+    .message-content {
+        font-size: 0.85rem;
+    }
+}
+</style>
+
+<script>
+// SweKeer Chatbot Functionality
+
+const chatbotWidget = document.getElementById('chatbot-widget');
+const chatbotFloatBtn = document.getElementById('chatbot-float-btn');
+const chatbotToggle = document.getElementById('chatbot-toggle');
+const chatbotForm = document.getElementById('chatbot-form');
+const chatbotInput = document.getElementById('chatbot-input');
+const chatbotMessages = document.getElementById('chatbot-messages');
+
+// Toggle chatbot visibility
+chatbotFloatBtn.addEventListener('click', () => {
+    chatbotWidget.classList.toggle('active');
+    if (chatbotWidget.classList.contains('active')) {
+        chatbotInput.focus();
+        scrollToBottom();
+    }
+});
+
+chatbotToggle.addEventListener('click', () => {
+    chatbotWidget.classList.remove('active');
+});
+
+// Send message
+function sendChatMessage(e) {
+    e.preventDefault();
+    
+    const message = chatbotInput.value.trim();
+    if (!message) return;
+    
+    // Add user message to chat
+    addMessage(message, 'user');
+    chatbotInput.value = '';
+    
+    // Show loading indicator
+    showLoadingIndicator();
+    
+    // Send to server
+    fetch('{% url "chatbot_response" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+        removeLoadingIndicator();
+        if (data.success) {
+            addMessage(data.message, 'bot');
+        } else {
+            addMessage('Sorry, I encountered an error. Please try again. 😕', 'bot');
+        }
+    })
+    .catch(error => {
+        removeLoadingIndicator();
+        console.error('Error:', error);
+        addMessage('Sorry, I couldn\'t connect. Please try again later. 🔌', 'bot');
+    });
+}
+
+// Add message to chat
+function addMessage(text, sender) {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = `message ${sender}-message`;
+    
+    const avatar = sender === 'bot' ? '🤖' : '👤';
+    
+    // Get the exact HTML content with all tags preserved
+    const contentHTML = sender === 'bot' ? text : escapeHtml(text);
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">${avatar}</div>
+        <div class="message-content">
+            <p>${contentHTML}</p>
+        </div>
+    `;
+    
+    chatbotMessages.appendChild(messageDiv);
+    
+    // Log HTML content with tags for debugging
+    if (sender === 'bot') {
+        console.log('Bot Response HTML:', contentHTML);
+        // Find and print all <b> tags in the response
+        const tempDiv = document.createElement('div');
+        tempDiv.innerHTML = contentHTML;
+        const boldTags = tempDiv.querySelectorAll('b');
+        if (boldTags.length > 0) {
+            console.log('Found bold tags:');
+            boldTags.forEach((tag, index) => {
+                console.log(`[${index}] ${tag.outerHTML}`);
+            });
+        }
+    }
+    
+    scrollToBottom();
+}
+
+// Show loading indicator
+function showLoadingIndicator() {
+    const messageDiv = document.createElement('div');
+    messageDiv.className = 'message bot-message';
+    messageDiv.id = 'loading-message';
+    
+    messageDiv.innerHTML = `
+        <div class="message-avatar">🤖</div>
+        <div class="message-content">
+            <div class="message-loading">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    `;
+    
+    chatbotMessages.appendChild(messageDiv);
+    scrollToBottom();
+}
+
+// Remove loading indicator
+function removeLoadingIndicator() {
+    const loadingMsg = document.getElementById('loading-message');
+    if (loadingMsg) loadingMsg.remove();
+}
+
+// Scroll to bottom
+function scrollToBottom() {
+    chatbotMessages.scrollTop = chatbotMessages.scrollHeight;
+}
+
+// Escape HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+
+// Get CSRF token
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
+// Auto-focus on Enter key
+chatbotInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        chatbotForm.dispatchEvent(new Event('submit'));
+    }
+});
+
+// Initialize
+console.log('🤖 SweKeer Chatbot loaded successfully!');
+</script>

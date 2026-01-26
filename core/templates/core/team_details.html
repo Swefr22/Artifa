@@ -1,0 +1,574 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Team Portal - {{ team_name }} - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 100% 44%;
+        --secondary: 270 100% 60%;
+        --background: 0 0% 15%;
+        --foreground: 0 0% 95%;
+        --card: 0 0% 25%;
+        --border: 0 0% 40%;
+        --muted-foreground: 0 0% 70%;
+        --stranger-yellow: 43 100% 50%;
+    }
+
+    body {
+        padding-top: 0 !important;
+    }
+
+    /* Fixed background container with reveal effect */
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 0.3;
+        transition: opacity 0.5s ease;
+    }
+
+    .black-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000;
+        z-index: 2;
+        pointer-events: none;
+        opacity: 0.7;
+        transition: opacity 0.5s ease;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+        opacity: 1;
+        transition: opacity 0.5s ease;
+    }
+
+
+
+    .team-hero {
+        position: relative;
+        margin-top: 210px;
+        padding: 100px 0 60px;
+        background: transparent;
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .team-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: radial-gradient(circle at 50% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%);
+        animation: portal-pulse 3s ease-in-out infinite;
+    }
+
+    @keyframes portal-pulse {
+        0%, 100% { transform: scale(1); opacity: 0.5; }
+        50% { transform: scale(1.05); opacity: 0.8; }
+    }
+
+    .team-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.8rem;
+        font-weight: 900;
+        color: hsl(0 100% 50%);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        position: relative;
+        z-index: 2;
+        margin-bottom: 15px;
+    }
+
+    .team-event {
+        font-size: 1.3rem;
+        color: hsl(var(--primary));
+        margin-top: 15px;
+    }
+
+    /* Team Stats */
+    .team-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin: 50px 0;
+    }
+
+    .stat-card {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        color: hsl(var(--primary));
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 1.1rem;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Team Members Grid */
+    .team-members-section {
+        background: hsl(var(--secondary) / 0.5);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px;
+        margin: 50px 0;
+    }
+
+    .section-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 30px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .section-title i {
+        color: hsl(var(--primary));
+        filter: drop-shadow(0 0 5px hsl(var(--primary) / 0.5));
+    }
+
+    .members-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 20px;
+    }
+
+    .member-card {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        text-align: center;
+        transition: all 0.3s ease;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .member-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.1), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .member-card:hover::before {
+        left: 100%;
+    }
+
+    .member-card:hover {
+        border-color: hsl(var(--primary));
+        transform: translateY(-5px);
+    }
+
+    .member-status-badge {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .status-joined {
+        background: hsl(0 100% 30% / 0.2);
+        color: hsl(0 100% 70%);
+        border: 1px solid hsl(0 100% 30%);
+    }
+
+    .status-pending {
+        background: hsl(38 92% 50% / 0.2);
+        color: hsl(38 92% 70%);
+        border: 1px solid hsl(38 92% 50%);
+    }
+
+    .member-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 20px;
+        font-size: 2rem;
+    }
+
+    .member-name {
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 8px;
+        font-size: 1.1rem;
+    }
+
+    .member-reg-number {
+        font-family: 'Courier New', monospace;
+        color: hsl(var(--primary));
+        font-size: 0.95rem;
+        margin-bottom: 15px;
+    }
+
+    .member-details {
+        font-size: 0.9rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .pending-placeholder {
+        padding: 40px;
+        border: 2px dashed hsl(var(--border));
+        border-radius: 15px;
+        text-align: center;
+        background: hsl(var(--secondary) / 0.3);
+    }
+
+    .pending-icon {
+        font-size: 3rem;
+        color: hsl(var(--muted-foreground));
+        opacity: 0.5;
+        margin-bottom: 15px;
+    }
+
+    .pending-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 1.1rem;
+    }
+
+    /* Info Box */
+    .info-box {
+        background: hsl(var(--primary) / 0.1);
+        border-left: 4px solid hsl(var(--primary));
+        border-radius: 10px;
+        padding: 20px;
+        margin: 30px 0;
+    }
+
+    .info-box-title {
+        font-weight: 700;
+        color: hsl(var(--primary));
+        margin-bottom: 10px;
+    }
+
+    .info-box-content {
+        color: hsl(var(--foreground));
+        line-height: 1.6;
+    }
+
+    /* Action Buttons */
+    .team-actions {
+        display: flex;
+        gap: 20px;
+        flex-wrap: wrap;
+        justify-content: center;
+        margin-top: 40px;
+    }
+
+    .team-btn {
+        padding: 15px 35px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .team-btn-primary {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .team-btn-primary:hover {
+        box-shadow: var(--shadow-red-intense);
+        transform: translateY(-3px);
+        text-decoration: none;
+        color: hsl(var(--primary-foreground));
+    }
+
+    .team-btn-outline {
+        background: transparent;
+        border: 2px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+    }
+
+    .team-btn-outline:hover {
+        background: hsl(var(--primary) / 0.1);
+        transform: translateY(-3px);
+        text-decoration: none;
+        color: hsl(var(--primary));
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .team-title {
+            font-size: 2rem;
+        }
+
+        .members-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .team-actions {
+            flex-direction: column;
+        }
+
+        .team-btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background -->
+<div class="background-container" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: -1;">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" style="position: absolute; width: 100%; height: 100%; object-fit: cover; opacity: 0.1;" alt="Background">
+    <div class="black-cover" style="position: absolute; width: 100%; height: 100%; background: hsl(var(--background) / 0.95);"></div>
+</div>
+
+<!-- Team Hero Section -->
+<section class="team-hero">
+    <div class="container" style="position: relative; z-index: 2;">
+        <div class="row justify-content-center">
+            <div class="col-lg-10">
+                <h1 class="team-title">
+                    <i class="fas fa-users-crown" style="margin-right: 15px;"></i>{{ team_name }}
+                </h1>
+                <p class="team-event" style="margin-bottom: 0;">
+                    <i class="fas fa-target"></i> {{ event.name }}
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Stats -->
+<section style="padding: 60px 0;">
+    <div class="container">
+        <div class="team-stats">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_members }}</div>
+                <div class="stat-label">Total Members</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: hsl(0 100% 30%);">{{ joined_members }}</div>
+                <div class="stat-label">Joined Team</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: hsl(38 92% 50%);">{{ remaining_members }}</div>
+                <div class="stat-label">Pending Confirmation</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number" style="color: hsl(var(--primary));">{{ event.max_team_size }}</div>
+                <div class="stat-label">Max Team Size</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Team Members Section -->
+<section style="padding: 60px 0;">
+    <div class="container">
+        <div class="team-members-section">
+            <h2 class="section-title">
+                <i class="fas fa-user-check"></i>Registered Team Members
+            </h2>
+
+            {% if team_participants %}
+            <div class="members-grid">
+                {% for participant in team_participants %}
+                <div class="member-card">
+                    <span class="member-status-badge status-joined">
+                        <i class="fas fa-check-circle"></i> Joined
+                    </span>
+                    <div class="member-icon">
+                        <i class="fas fa-user-astronaut"></i>
+                    </div>
+                    <div class="member-name">{{ participant.full_name }}</div>
+                    <div class="member-reg-number">{{ participant.register_number }}</div>
+                    <div class="member-details">
+                        <p style="margin: 8px 0;">{{ participant.get_department_display }}</p>
+                        <p style="margin: 8px 0;">Year {{ participant.get_year_display }}</p>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            {% if remaining_members > 0 %}
+            <h3 style="margin-top: 50px; margin-bottom: 25px; color: hsl(var(--foreground));">
+                <i class="fas fa-hourglass-half" style="margin-right: 10px; color: hsl(38 92% 50%);"></i>Pending Members ({{ remaining_members }})
+            </h3>
+
+            <div class="members-grid">
+                {% for member_reg in team_members_list %}
+                    {% if member_reg not in team_participants|dictsort:"register_number" %}
+                    <div class="member-card">
+                        <span class="member-status-badge status-pending">
+                            <i class="fas fa-clock"></i> Pending
+                        </span>
+                        <div class="member-icon" style="background: hsl(38 92% 50% / 0.2); color: hsl(38 92% 50%);">
+                            <i class="fas fa-question-circle"></i>
+                        </div>
+                        <div class="member-name">Awaiting Registration</div>
+                        <div class="member-reg-number">{{ member_reg }}</div>
+                        <div class="member-details" style="color: hsl(38 92% 50%);">
+                            <p style="margin: 8px 0;">Not yet registered</p>
+                            <p style="margin: 8px 0;">Waiting for confirmation</p>
+                        </div>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+            </div>
+            {% endif %}
+            {% else %}
+            <div class="pending-placeholder">
+                <div class="pending-icon">
+                    <i class="fas fa-inbox"></i>
+                </div>
+                <p class="pending-text">No team members have registered yet. Share the team code with other members to join!</p>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Info Box -->
+        <div class="info-box">
+            <div class="info-box-title">
+                <i class="fas fa-info-circle"></i> How to Share Your Team
+            </div>
+            <div class="info-box-content">
+                <p>Share the team code <strong>#ART{{ registration.id|stringformat:"07d" }}</strong> with your team members. They can use this code when registering to join your team directly. Alternatively, they can select the same event and enter the same team name and member list during registration.</p>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="team-actions">
+            <a href="{% url 'home' %}" class="team-btn team-btn-primary">
+                <i class="fas fa-home"></i>Return Home
+            </a>
+            <a href="{% url 'register' %}" class="team-btn team-btn-primary">
+                <i class="fas fa-plus-circle"></i>Invite More Members
+            </a>
+            <a href="{% url 'schedule' %}" class="team-btn team-btn-outline">
+                <i class="fas fa-calendar-alt"></i>View Schedule
+            </a>
+        </div>
+    </div>
+</section>
+
+<!-- Progress Bar -->
+<section style="padding: 40px 0; background: hsl(var(--secondary) / 0.5);">
+    <div class="container">
+        <div style="text-align: center; margin-bottom: 30px;">
+            <h3 style="color: hsl(var(--primary)); margin-bottom: 0;">
+                <i class="fas fa-chart-pie"></i> Team Registration Progress
+            </h3>
+        </div>
+        <div style="background: hsl(var(--card)); border-radius: 50px; height: 50px; overflow: hidden; border: 2px solid hsl(var(--border));">
+            <div style="background: linear-gradient(90deg, hsl(0 100% 30%), hsl(0 100% 50%)); height: 100%; width: {% widthratio joined_members total_members 100 %}%; transition: width 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-weight: 700;">
+                {% if total_members > 0 %}{{ joined_members }}/{{ total_members }} Joined{% endif %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add smooth scroll behavior
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth' });
+                }
+            });
+        });
+
+        // Animate stat cards on scroll
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.animation = 'slideIn 0.6s ease-out';
+                }
+            });
+        });
+
+        document.querySelectorAll('.stat-card').forEach(card => {
+            observer.observe(card);
+        });
+    });
+
+    // Add animation keyframes
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    `;
+    document.head.appendChild(style);
+</script>
+{% endblock %}

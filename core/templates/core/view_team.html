@@ -1,0 +1,188 @@
+{% extends 'base.html' %}
+{% load static %}
+{% load custom_filters %}
+
+{% block title %}View Team - ARTIFA FEST{% endblock %}
+
+{% block content %}
+<div class="container mt-5 mb-5">
+    <div class="row mb-4">
+        <div class="col-md-8">
+            <h1 class="mb-1">
+                <i class="fas fa-users text-primary"></i> {{ team.name }}
+            </h1>
+            <p class="text-muted">
+                <i class="fas fa-trophy"></i> {{ team.event.name }} 
+                • Created by {{ team.created_by.full_name }}
+            </p>
+        </div>
+        <div class="col-md-4 text-end">
+            <a href="{% url 'team_dashboard' %}" class="btn btn-outline-secondary">
+                <i class="fas fa-arrow-left"></i> Back to Dashboard
+            </a>
+        </div>
+    </div>
+    
+    {% if messages %}
+        {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                {{ message }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        {% endfor %}
+    {% endif %}
+    
+    <!-- Team Information Card -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-primary text-white">
+            <h5 class="mb-0"><i class="fas fa-info-circle"></i> Team Information</h5>
+        </div>
+        <div class="card-body">
+            <div class="row">
+                <div class="col-md-6">
+                    <p><strong>Team Size:</strong></p>
+                    <div class="progress mb-3" style="height: 25px;">
+                        <div class="progress-bar bg-success" role="progressbar" 
+                             style="width: {{ current_member_count|divide:event_max_size|multiply:100 }}%"
+                             aria-valuenow="{{ current_member_count }}" 
+                             aria-valuemin="0" 
+                             aria-valuemax="{{ event_max_size }}">
+                            {{ current_member_count }}/{{ event_max_size }}
+                        </div>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <p><strong>Event Details:</strong></p>
+                    <ul class="list-unstyled">
+                        <li><i class="fas fa-calendar"></i> <strong>Date:</strong> {{ team.event.event_date|date:"M d, Y" }}</li>
+                        <li><i class="fas fa-clock"></i> <strong>Time:</strong> {{ team.event.start_time }} - {{ team.event.end_time }}</li>
+                        <li><i class="fas fa-map-marker-alt"></i> <strong>Venue:</strong> {{ team.event.venue }}</li>
+                    </ul>
+                </div>
+            </div>
+            
+            {% if team.description %}
+                <hr>
+                <p><strong>Team Description:</strong></p>
+                <p class="text-muted">{{ team.description }}</p>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Team Members Section -->
+    <div class="card mb-4 shadow-sm">
+        <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+            <h5 class="mb-0"><i class="fas fa-user-friends"></i> Team Members</h5>
+            {% if is_team_leader and current_member_count < event_max_size %}
+                <a href="{% url 'add_team_member' team.id %}" class="btn btn-sm btn-light">
+                    <i class="fas fa-user-plus"></i> Add Member
+                </a>
+            {% endif %}
+        </div>
+        <div class="card-body">
+            {% if members %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Register Number</th>
+                                <th>Name</th>
+                                <th>Year • Department</th>
+                                <th>Status</th>
+                                {% if is_team_leader %}
+                                    <th>Actions</th>
+                                {% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for member in members %}
+                                <tr>
+                                    <td>
+                                        <code>{{ member.participant.register_number }}</code>
+                                    </td>
+                                    <td>
+                                        <strong>{{ member.participant.full_name }}</strong>
+                                        {% if member.participant == team.created_by %}
+                                            <span class="badge bg-warning">Leader</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {{ member.participant.get_year_display }} • {{ member.participant.get_department_display }}
+                                    </td>
+                                    <td>
+                                        {% if member.status == 'joined' %}
+                                            <span class="badge bg-success">
+                                                <i class="fas fa-check-circle"></i> Joined
+                                            </span>
+                                        {% elif member.status == 'pending' %}
+                                            <span class="badge bg-warning">
+                                                <i class="fas fa-hourglass-half"></i> Pending
+                                            </span>
+                                        {% else %}
+                                            <span class="badge bg-danger">
+                                                <i class="fas fa-times-circle"></i> Declined
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    {% if is_team_leader %}
+                                        <td>
+                                            {% if member.participant != team.created_by %}
+                                                <a href="{% url 'remove_team_member' team.id member.id %}" 
+                                                   class="btn btn-sm btn-outline-danger"
+                                                   onclick="return confirm('Remove {{ member.participant.full_name }} from team?')">
+                                                    <i class="fas fa-trash"></i> Remove
+                                                </a>
+                                            {% else %}
+                                                <span class="text-muted">-</span>
+                                            {% endif %}
+                                        </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="alert alert-warning" role="alert">
+                    <i class="fas fa-exclamation-triangle"></i> No members in this team yet.
+                </div>
+            {% endif %}
+        </div>
+    </div>
+    
+    <!-- Member Invitations Status -->
+    <div class="card shadow-sm">
+        <div class="card-header bg-secondary text-white">
+            <h5 class="mb-0"><i class="fas fa-list-check"></i> Invitation Summary</h5>
+        </div>
+        <div class="card-body">
+            <div class="row text-center">
+                <div class="col-md-4">
+                    <div>
+                        <h3 class="text-success">{{ team.member_count }}</h3>
+                        <p class="text-muted">Members Joined</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div>
+                        <h3 class="text-warning">{{ team.pending_count }}</h3>
+                        <p class="text-muted">Pending Invitations</p>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div>
+                        <h3 class="text-primary">{{ event_max_size }}</h3>
+                        <p class="text-muted">Maximum Size</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .table-hover tbody tr:hover {
+        background-color: rgba(0, 0, 0, 0.02);
+    }
+</style>
+{% endblock %}

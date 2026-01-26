@@ -1,0 +1,309 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Add Admin - Control Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 92% 48%;
+        --stranger-dark: 240 10% 3%;
+        --secondary: 240 15% 9%;
+        --foreground: 0 0% 95%;
+        --border: 240 10% 20%;
+        --card: 240 10% 8%;
+        --muted-foreground: 240 5% 64%;
+        --primary-foreground: 0 0% 100%;
+        --stranger-yellow: 51 100% 50%;
+        --stranger-orange: 25 100% 50%;
+    }
+
+    .form-hero {
+        position: relative;
+        padding: 100px 0 60px;
+        background: linear-gradient(135deg, hsl(var(--stranger-dark)), hsl(var(--secondary)));
+        color: hsl(var(--foreground));
+        text-align: center;
+    }
+
+    .form-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(var(--stranger-yellow) / 0.1) 0%, transparent 50%);
+    }
+
+    .form-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+    }
+
+    .form-section {
+        padding: 60px 0 100px;
+        background: hsl(var(--stranger-dark) / 0.95);
+        min-height: 100vh;
+    }
+
+    .form-card {
+        max-width: 700px;
+        margin: 0 auto;
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        margin-bottom: 10px;
+        color: hsl(var(--primary));
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.95rem;
+    }
+
+    .form-input {
+        width: 100%;
+        padding: 12px 15px;
+        background: hsl(var(--secondary));
+        border: 2px solid hsl(var(--border));
+        color: hsl(var(--foreground));
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s ease;
+        font-family: inherit;
+    }
+
+    .form-input:focus {
+        outline: none;
+        border-color: hsl(var(--primary));
+        background: hsl(var(--card));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+    }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+    }
+
+    .password-requirements {
+        background: hsl(var(--secondary) / 0.5);
+        border: 2px solid hsl(var(--border));
+        border-left: 4px solid hsl(var(--stranger-yellow));
+        border-radius: 8px;
+        padding: 15px;
+        margin: 20px 0;
+        color: hsl(var(--muted-foreground));
+        font-size: 0.9rem;
+    }
+
+    .password-requirements ul {
+        margin: 10px 0 0;
+        padding-left: 20px;
+    }
+
+    .password-requirements li {
+        margin: 5px 0;
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-submit {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+    }
+
+    .btn-cancel {
+        background: hsl(var(--secondary));
+        color: hsl(var(--muted-foreground));
+        border: 2px solid hsl(var(--border));
+    }
+
+    .btn-cancel:hover {
+        border-color: hsl(var(--primary));
+        color: hsl(var(--foreground));
+    }
+
+    .messages {
+        margin-bottom: 20px;
+    }
+
+    .alert {
+        padding: 15px;
+        border-radius: 8px;
+        margin-bottom: 15px;
+    }
+
+    .alert-success {
+        background: hsl(142 76% 36% / 0.1);
+        border: 2px solid hsl(142 76% 36%);
+        color: hsl(142 76% 70%);
+    }
+
+    .alert-error {
+        background: hsl(0 92% 48% / 0.1);
+        border: 2px solid hsl(0 92% 48%);
+        color: hsl(0 92% 70%);
+    }
+
+    @media (max-width: 768px) {
+        .form-card {
+            margin: 0 15px;
+        }
+
+        .form-row {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="form-hero">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="{% url 'admin_dashboard' %}" style="color: hsl(var(--stranger-yellow)); text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <i class="fas fa-arrow-left"></i>Back to Dashboard
+            </a>
+        </div>
+        <h1 class="form-title">
+            <i class="fas fa-user-shield me-3"></i>Add Admin User
+        </h1>
+    </div>
+</section>
+
+<!-- Form Section -->
+<section class="form-section">
+    <div class="form-card">
+        {% if messages %}
+        <div class="messages">
+            {% for message in messages %}
+            <div class="alert {% if message.tags %}alert-{{ message.tags }}{% endif %}">
+                {% if message.tags == 'success' %}
+                <i class="fas fa-check-circle me-2"></i>
+                {% else %}
+                <i class="fas fa-exclamation-circle me-2"></i>
+                {% endif %}
+                {{ message }}
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <form method="post">
+            {% csrf_token %}
+
+            <!-- Full Name -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-user me-2"></i>Full Name
+                </label>
+                <input type="text" name="first_name" class="form-input" placeholder="e.g., John Doe">
+            </div>
+
+            <!-- Username -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-id-card me-2"></i>Username
+                </label>
+                <input type="text" name="username" class="form-input" placeholder="e.g., admin_user" required>
+            </div>
+
+            <!-- Email -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-envelope me-2"></i>Email Address
+                </label>
+                <input type="email" name="email" class="form-input" placeholder="e.g., admin@example.com" required>
+            </div>
+
+            <!-- Password -->
+            <div class="form-group">
+                <label class="form-label">
+                    <i class="fas fa-lock me-2"></i>Password
+                </label>
+                <input type="password" name="password" class="form-input" placeholder="Enter secure password" required>
+                <div class="password-requirements">
+                    <strong>Password Requirements:</strong>
+                    <ul>
+                        <li>At least 8 characters long</li>
+                        <li>Mix of uppercase and lowercase letters</li>
+                        <li>Include numbers and special characters</li>
+                        <li>Not similar to username or email</li>
+                    </ul>
+                </div>
+            </div>
+
+            <!-- Admin Permissions Info -->
+            <div class="password-requirements">
+                <i class="fas fa-shield-alt me-2"></i>
+                <strong>Permissions:</strong> This user will have full admin access to manage the system, including:
+                <ul>
+                    <li>Create, edit, and delete competitions</li>
+                    <li>View registration data</li>
+                    <li>Manage participants</li>
+                    <li>Export reports</li>
+                </ul>
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="submit" class="btn btn-submit">
+                    <i class="fas fa-user-plus me-2"></i>Create Admin
+                </button>
+                <a href="{% url 'admin_dashboard' %}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

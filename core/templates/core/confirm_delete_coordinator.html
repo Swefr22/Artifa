@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Coordinator - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    .confirm-container {
+        background: linear-gradient(135deg, hsl(var(--card)), hsl(var(--card) / 0.8));
+        border: 3px solid #e02401;
+        border-radius: 12px;
+        padding: 40px;
+        text-align: center;
+        box-shadow: 0 10px 40px #e024011a;
+    }
+
+    .confirm-icon {
+        font-size: 4rem;
+        color: #e02401;
+        margin-bottom: 20px;
+        animation: shake 0.5s ease-in-out;
+    }
+
+    @keyframes shake {
+        0%, 100% { transform: translateX(0); }
+        25% { transform: translateX(-10px); }
+        75% { transform: translateX(10px); }
+    }
+
+    .confirm-title {
+        color: #e02401;
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        margin-bottom: 15px;
+        font-weight: 700;
+    }
+
+    .confirm-message {
+        color: hsl(var(--foreground));
+        font-size: 1.1rem;
+        margin-bottom: 30px;
+        line-height: 1.6;
+    }
+
+    .coordinator-info {
+        background: hsl(var(--background));
+        border: 2px solid hsl(var(--primary));
+        padding: 20px;
+        border-radius: 8px;
+        margin-bottom: 30px;
+        text-align: left;
+    }
+
+    .info-item {
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+    }
+
+    .info-item strong {
+        color: hsl(var(--foreground));
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+    }
+
+    .btn-delete,
+    .btn-cancel {
+        flex: 1;
+        padding: 14px 30px;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+
+    .btn-delete {
+        background: #e02401;
+        color: white;
+    }
+
+    .btn-delete:hover {
+        background: #c41d00;
+        transform: translateY(-2px);
+        box-shadow: 0 5px 15px #e024011a;
+    }
+
+    .btn-cancel {
+        background: hsl(var(--primary));
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: hsl(var(--primary) / 0.8);
+        transform: translateY(-2px);
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6">
+            <div class="confirm-container">
+                <div class="confirm-icon">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+
+                <h1 class="confirm-title">Delete Coordinator?</h1>
+
+                <p class="confirm-message">
+                    You are about to permanently delete this coordinator. This action cannot be undone.
+                </p>
+
+                <div class="coordinator-info">
+                    <div class="info-item">
+                        <strong>Name:</strong> {{ coordinator.name }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Register Number:</strong> {{ coordinator.register_number }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Year:</strong> {{ coordinator.get_year_display }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Event Type:</strong> {{ coordinator.get_event_type_display }}
+                    </div>
+                    <div class="info-item">
+                        <strong>Event:</strong> {{ coordinator.event.name }}
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <form method="POST" style="flex: 1;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-delete" style="width: 100%;">
+                            <i class="fas fa-trash me-2"></i>Yes, Delete
+                        </button>
+                    </form>
+                    <a href="{% url 'manage_coordinators' %}" class="btn-cancel">
+                        <i class="fas fa-arrow-left me-2"></i>Cancel
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

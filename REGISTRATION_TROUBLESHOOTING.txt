@@ -1,0 +1,140 @@
+STUDENT REGISTRATION TROUBLESHOOTING GUIDE
+==========================================
+
+The registration system is WORKING correctly. If you're having issues, here are the most common problems and solutions:
+
+ISSUE 1: "Register number is already registered"
+-------------------------------------------------
+Problem: You see this error when trying to register
+Solution: This register number already exists in the system
+  - Try with a DIFFERENT register number
+  - Or contact admin to reset your account
+
+ISSUE 2: Form shows errors but doesn't say what they are
+-------------------------------------------
+Problem: You click Register but nothing happens
+Solution: The form has validation errors. Check these fields:
+
+  DEPARTMENT: Must use the correct code:
+    ✓ AIDS     (AI & DS)
+    ✓ CSE      (Computer Science)
+    ✓ IT       (Information Technology)
+    ✓ ECE      (Electronics & Communication)
+    ✓ EEE      (Electrical & Electronics)
+    ✓ MECH     (Mechanical)
+    ✓ CIVIL    (Civil)
+    ✓ OTHER    (Other)
+    
+    ✗ DO NOT use: CS, CE, IT_DEPT, etc.
+
+  PASSWORD:
+    ✓ Must be at least 8 characters
+    ✓ Must match "Confirm Password" field
+    ✗ Do not leave blank
+
+  TEAM NAME (for team events):
+    - Events marked as TEAM require a team name
+    - Available team events:
+      • Suzie's Never Ending Story
+      • Code from the Upside Down
+      • Dungeons & Dragons
+      • Make Your Hellfire Club
+      • Eleven's Reality Check
+    - SOLO events (no team name needed):
+      • No.8's Vision Forge
+      • Hawkins Data Files
+
+ISSUE 3: Registration says "successful" but I can't login
+----------------------------------------------------------
+Problem: Registration appeared to work, but login fails
+Solution:
+  1. Wait 10 seconds (sometimes database needs time to sync)
+  2. Try logging in with exact register number you entered
+  3. Check if the case matters:
+     ✓ Works: 21AID001, 21aid001, 21Aid001 (all work!)
+  4. Make sure password is exactly as you entered
+
+ISSUE 4: "Register number not found" when logging in
+-----------------------------------------------------
+Problem: You registered but login says register number not found
+Solution:
+  1. Check the registration was successful (look for green message)
+  2. Wait a few seconds
+  3. Try with lowercase register number (should work now)
+  4. Contact admin if still failing
+
+FIELDS THAT MUST BE FILLED:
+=============================
+  ✓ Full Name       - Your complete name
+  ✓ Register Number - Your college ID number (e.g., 21AID001)
+  ✓ Year            - Your academic year (1, 2, 3, or 4)
+  ✓ Department      - Your department (use codes above)
+  ✓ Phone Number    - 10-digit mobile number
+  ✓ Email           - Your college email
+  ✓ Select Event    - Choose the competition you want to join
+  ✓ Password        - Create a password
+  ✓ Confirm Password - Re-enter the same password
+  ✓ Team Name       - Only if event is a team event
+
+AVAILABLE EVENTS:
+==================
+SOLO EVENTS (1 person per registration):
+  1. No.8's Vision Forge
+  2. Hawkins Data Files
+  3. Test Event 2
+
+TEAM EVENTS (requires team name):
+  1. Suzie's Never Ending Story
+  2. Code from the Upside Down
+  3. Dungeons & Dragons
+  4. Make Your Hellfire Club
+  5. Eleven's Reality Check
+
+EXAMPLE OF CORRECT REGISTRATION:
+=================================
+Full Name:         John Doe
+Register Number:   21AID001
+Year:              2
+Department:        CSE (Computer Science)
+Phone Number:      9876543210
+Email:             john.doe@nec.edu.in
+Event:             No.8's Vision Forge (SOLO - no team name needed)
+Password:          MyPassword123
+Confirm:           MyPassword123
+
+Then login with:
+  Register Number: 21AID001
+  Password:        MyPassword123
+
+DEBUGGING CHECKLIST:
+====================
+Before contacting support, verify:
+  [ ] Department code is correct (not full name)
+  [ ] Event selection is valid
+  [ ] If team event, team name is filled
+  [ ] Password is at least 8 characters
+  [ ] Passwords match
+  [ ] Email format is valid
+  [ ] Phone number is 10 digits
+  [ ] No special characters in register number (unless college uses them)
+
+If registration still fails:
+  1. Check browser console for error (F12)
+  2. Try a different browser (Chrome, Firefox, Edge)
+  3. Clear browser cache
+  4. Contact support with the error message
+
+SUCCESS INDICATORS:
+====================
+✓ Green success message appears
+✓ Redirected to Registration Success page
+✓ Page shows your registration details
+✓ "Continue to Dashboard" button is visible
+✓ Can then login with register number and password
+
+CONTACT SUPPORT:
+================
+If you've verified everything and still have issues:
+  - Email: admin@artifa.fest
+  - Phone: (provide contact info)
+  - Include: Register number, email, error message

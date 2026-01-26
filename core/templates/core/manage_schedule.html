@@ -1,0 +1,368 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Schedule - Control Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 92% 48%;
+        --stranger-dark: 240 10% 3%;
+        --secondary: 240 15% 9%;
+        --foreground: 0 0% 95%;
+        --border: 240 10% 20%;
+        --card: 240 10% 8%;
+        --muted-foreground: 240 5% 64%;
+        --primary-foreground: 0 0% 100%;
+        --stranger-yellow: 51 100% 50%;
+        --stranger-orange: 25 100% 50%;
+    }
+
+    .schedule-hero {
+        position: relative;
+        padding: 100px 0 60px;
+        background: linear-gradient(135deg, hsl(var(--stranger-dark)), hsl(var(--secondary)));
+        color: hsl(var(--foreground));
+        text-align: center;
+    }
+
+    .schedule-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(var(--stranger-yellow) / 0.1) 0%, transparent 50%);
+    }
+
+    .schedule-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+    }
+
+    .schedule-section {
+        padding: 60px 0 100px;
+        background: hsl(var(--stranger-dark) / 0.95);
+        min-height: 100vh;
+    }
+
+    .schedule-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    .schedule-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+    }
+
+    .back-link {
+        color: hsl(var(--stranger-yellow));
+        text-decoration: none;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-weight: 600;
+    }
+
+    .back-link:hover {
+        color: hsl(var(--primary));
+    }
+
+    .add-btn {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+
+    .add-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+    }
+
+    .schedule-count {
+        font-size: 1.1rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .schedule-count strong {
+        color: hsl(var(--primary));
+        font-size: 1.4rem;
+    }
+
+    .timeline {
+        position: relative;
+    }
+
+    .timeline-date {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        color: hsl(var(--primary));
+        font-weight: 700;
+        margin-top: 40px;
+        margin-bottom: 20px;
+        padding-bottom: 15px;
+        border-bottom: 2px solid hsl(var(--border));
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-left: 30px;
+        margin-bottom: 25px;
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 12px;
+        padding: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .timeline-item::before {
+        content: '';
+        position: absolute;
+        left: -40px;
+        top: 25px;
+        width: 15px;
+        height: 15px;
+        background: hsl(var(--primary));
+        border: 3px solid hsl(var(--card));
+        border-radius: 50%;
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.3);
+    }
+
+    .timeline-item.break {
+        opacity: 0.8;
+        background: hsl(var(--secondary));
+    }
+
+    .timeline-item.break::before {
+        background: hsl(var(--stranger-yellow));
+        box-shadow: 0 0 0 3px hsl(var(--stranger-yellow) / 0.3);
+    }
+
+    .timeline-item:hover {
+        transform: translateX(5px);
+        border-color: hsl(var(--primary));
+        box-shadow: 0 5px 20px hsl(var(--primary) / 0.2);
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 10px;
+    }
+
+    .timeline-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .timeline-time {
+        background: hsl(var(--primary) / 0.2);
+        color: hsl(var(--primary));
+        padding: 5px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+    }
+
+    .timeline-item.break .timeline-time {
+        background: hsl(var(--stranger-yellow) / 0.2);
+        color: hsl(var(--stranger-yellow));
+    }
+
+    .timeline-description {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.95rem;
+        margin: 10px 0;
+    }
+
+    .timeline-meta {
+        display: flex;
+        gap: 15px;
+        margin-top: 10px;
+        flex-wrap: wrap;
+    }
+
+    .meta-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        background: hsl(var(--secondary));
+        border-radius: 15px;
+        font-size: 0.85rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .timeline-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 15px;
+    }
+
+    .action-btn {
+        padding: 8px 15px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        transition: all 0.3s ease;
+    }
+
+    .btn-edit {
+        background: hsl(var(--primary) / 0.2);
+        color: hsl(var(--primary));
+        border: 1px solid hsl(var(--primary));
+    }
+
+    .btn-edit:hover {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+    }
+
+    .btn-delete {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 48%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    .btn-delete:hover {
+        background: hsl(0 92% 48%);
+        color: hsl(var(--primary-foreground));
+    }
+
+    @media (max-width: 768px) {
+        .schedule-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .timeline-item {
+            margin-left: 15px;
+        }
+
+        .timeline-item::before {
+            left: -25px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="schedule-hero">
+    <div class="schedule-container">
+        <h1 class="schedule-title">
+            <i class="fas fa-calendar-alt me-3"></i>Manage Timeline
+        </h1>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="schedule-section">
+    <div class="schedule-container">
+        <!-- Header with Add Button -->
+        <div class="schedule-header">
+            <div>
+                <a href="{% url 'admin_dashboard' %}" class="back-link">
+                    <i class="fas fa-arrow-left"></i>Back to Dashboard
+                </a>
+                <div class="schedule-count" style="margin-top: 10px;">
+                    <i class="fas fa-list me-2"></i>
+                    Total Schedules: <strong>{{ total_schedules }}</strong>
+                </div>
+            </div>
+            <a href="{% url 'add_schedule' %}" class="add-btn">
+                <i class="fas fa-plus"></i>Add Timeline Item
+            </a>
+        </div>
+
+        <!-- Timeline -->
+        <div class="timeline">
+            {% for date, items in schedule_by_date.items %}
+            <div class="timeline-date">
+                <i class="fas fa-calendar-day me-2"></i>{{ date }}
+            </div>
+            
+            {% for item in items %}
+            <div class="timeline-item {% if item.is_break %}break{% endif %}">
+                <div class="timeline-header">
+                    <div class="timeline-title">
+                        {% if item.is_break %}
+                        <i class="fas fa-pause-circle" style="color: hsl(var(--stranger-yellow));"></i>
+                        {% else %}
+                        <i class="fas fa-clock"></i>
+                        {% endif %}
+                        {{ item.title }}
+                    </div>
+                    <span class="timeline-time">{{ item.start_time }} - {{ item.end_time }}</span>
+                </div>
+                
+                {% if item.description %}
+                <p class="timeline-description">{{ item.description }}</p>
+                {% endif %}
+                
+                <div class="timeline-meta">
+                    {% if not item.is_break %}
+                    <span class="meta-badge">
+                        <i class="fas fa-event me-1"></i>{{ item.event }}
+                    </span>
+                    {% endif %}
+                    <span class="meta-badge">
+                        <i class="fas fa-hourglass-end me-1"></i>{{ item.start_time }}
+                    </span>
+                </div>
+                
+                <div class="timeline-actions">
+                    <a href="{% url 'edit_schedule' item.id %}" class="action-btn btn-edit">
+                        <i class="fas fa-edit"></i>Edit
+                    </a>
+                    <a href="{% url 'delete_schedule' item.id %}" class="action-btn btn-delete">
+                        <i class="fas fa-trash"></i>Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

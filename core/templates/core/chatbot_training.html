@@ -1,0 +1,647 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}SWEKEER Chatbot Training - Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Training Page Styling - Matches Website Theme */
+    .training-section {
+        position: relative;
+        padding: 80px 0;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        min-height: 100vh;
+    }
+
+    .training-header {
+        text-align: center;
+        margin-bottom: 60px;
+        position: relative;
+        z-index: 2;
+    }
+
+    .training-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        margin-bottom: 15px;
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+        text-transform: uppercase;
+        letter-spacing: 2px;
+    }
+
+    .training-subtitle {
+        font-size: 1.2rem;
+        color: hsl(var(--stranger-yellow));
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);
+        margin-bottom: 30px;
+    }
+
+    /* CARD STYLING */
+    .training-card {
+        background: linear-gradient(135deg, 
+            hsl(var(--card) / 0.8), 
+            hsl(var(--secondary) / 0.4));
+        border: 2px solid hsl(var(--primary) / 0.3);
+        border-radius: 15px;
+        padding: 40px;
+        margin-bottom: 40px;
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .training-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s ease;
+    }
+
+    .training-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .training-card:hover {
+        border-color: hsl(var(--primary) / 0.6);
+        box-shadow: 0 12px 48px rgba(0, 92, 255, 0.2);
+    }
+
+    /* SECTION HEADERS */
+    .section-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        margin-bottom: 30px;
+        color: hsl(var(--foreground));
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .section-header i {
+        color: hsl(var(--primary));
+        font-size: 1.6rem;
+        text-shadow: 0 0 15px hsl(var(--primary) / 0.6);
+    }
+
+    /* FORM STYLING */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .form-label i {
+        color: hsl(var(--primary));
+        font-size: 1.1rem;
+    }
+
+    .form-control,
+    .form-select {
+        background: hsl(var(--secondary) / 0.3);
+        border: 1px solid hsl(var(--primary) / 0.2);
+        color: hsl(var(--foreground));
+        padding: 12px 15px;
+        border-radius: 8px;
+        transition: all 0.3s ease;
+        font-family: 'Montserrat', sans-serif;
+    }
+
+    .form-control::placeholder,
+    .form-select::placeholder {
+        color: hsl(var(--muted-foreground));
+    }
+
+    .form-control:focus,
+    .form-select:focus {
+        background: hsl(var(--secondary) / 0.5);
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+        color: hsl(var(--foreground));
+    }
+
+    .form-text {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.9rem;
+    }
+
+    /* BUTTONS */
+    .btn-primary-custom {
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)));
+        border: none;
+        color: hsl(var(--primary-foreground));
+        padding: 12px 30px;
+        border-radius: 8px;
+        font-weight: 600;
+        font-family: 'Montserrat', sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px hsl(var(--primary) / 0.4);
+    }
+
+    .btn-primary-custom:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px hsl(var(--primary) / 0.6);
+    }
+
+    .btn-primary-custom:active {
+        transform: translateY(0);
+    }
+
+    /* TABLE STYLING */
+    .training-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+        overflow: hidden;
+        border-radius: 12px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+    }
+
+    .training-table thead {
+        background: linear-gradient(90deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-orange)));
+    }
+
+    .training-table thead th {
+        color: hsl(var(--primary-foreground));
+        padding: 18px;
+        text-align: left;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        border-bottom: 3px solid hsl(var(--primary) / 0.5);
+    }
+
+    .training-table tbody tr {
+        background: hsl(var(--secondary) / 0.2);
+        border-bottom: 1px solid hsl(var(--primary) / 0.2);
+        transition: all 0.3s ease;
+    }
+
+    .training-table tbody tr:hover {
+        background: hsl(var(--primary) / 0.15);
+        transform: translateX(5px);
+    }
+
+    .training-table tbody td {
+        padding: 16px 18px;
+        color: hsl(var(--foreground));
+        font-size: 0.95rem;
+    }
+
+    /* BADGES */
+    .badge-active {
+        background: linear-gradient(135deg, 
+            hsl(160 84% 39% / 0.3), 
+            hsl(160 84% 39% / 0.1));
+        color: hsl(160 84% 70%);
+        border: 1px solid hsl(160 84% 39%);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-inactive {
+        background: linear-gradient(135deg, 
+            hsl(0 92% 48% / 0.3), 
+            hsl(0 92% 48% / 0.1));
+        color: hsl(0 92% 70%);
+        border: 1px solid hsl(0 92% 48%);
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-weight: 600;
+        font-size: 0.85rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-intent {
+        background: hsl(var(--primary) / 0.3);
+        color: hsl(var(--primary) / 1);
+        border: 1px solid hsl(var(--primary) / 0.5);
+        padding: 4px 10px;
+        border-radius: 15px;
+        font-weight: 600;
+        font-size: 0.8rem;
+        text-transform: capitalize;
+    }
+
+    /* ACTION BUTTONS */
+    .action-button {
+        padding: 6px 12px;
+        border: none;
+        border-radius: 6px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .btn-edit {
+        background: hsl(45 97% 77% / 0.2);
+        color: hsl(45 97% 50%);
+        border: 1px solid hsl(45 97% 77%);
+    }
+
+    .btn-edit:hover {
+        background: hsl(45 97% 77% / 0.4);
+        transform: translateY(-2px);
+    }
+
+    .btn-delete {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 70%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    .btn-delete:hover {
+        background: hsl(0 92% 48% / 0.4);
+        transform: translateY(-2px);
+    }
+
+    /* SEARCH BOX */
+    .search-box {
+        background: hsl(var(--secondary) / 0.3);
+        border: 1px solid hsl(var(--primary) / 0.2);
+        padding: 12px 15px;
+        border-radius: 8px;
+        color: hsl(var(--foreground));
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .search-box:focus {
+        background: hsl(var(--secondary) / 0.5);
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.2);
+    }
+
+    /* FOOTER SECTION */
+    .footer-tip {
+        margin-bottom: 20px;
+        padding-bottom: 20px;
+        border-bottom: 1px solid hsl(var(--primary) / 0.2);
+    }
+
+    .footer-tip h5 {
+        color: hsl(var(--primary));
+        font-weight: 700;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .footer-tip h5 i {
+        font-size: 1.3rem;
+        text-shadow: 0 0 10px hsl(var(--primary) / 0.6);
+    }
+
+    .footer-tip ul {
+        margin: 0;
+        padding-left: 20px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .footer-tip li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+    }
+
+    /* EMPTY STATE */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: hsl(var(--primary) / 0.4);
+        margin-bottom: 15px;
+    }
+
+    /* RESPONSIVE */
+    @media (max-width: 768px) {
+        .training-title {
+            font-size: 2rem;
+        }
+
+        .section-header {
+            font-size: 1.3rem;
+        }
+
+        .training-card {
+            padding: 20px;
+        }
+
+        .training-table {
+            font-size: 0.9rem;
+        }
+
+        .training-table thead th,
+        .training-table tbody td {
+            padding: 12px;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<section class="training-section">
+    <div class="container-fluid">
+        <div class="training-header">
+            <h1 class="training-title">
+                <i class="fas fa-brain"></i> SWEKEER Training Center
+            </h1>
+            <p class="training-subtitle">Enhance SWEKEER's Intelligence with Custom Q&A Pairs</p>
+            <p style="color: hsl(var(--foreground) / 0.8); margin: 0; font-size: 1rem; margin-top: 15px;">
+                Create and manage custom questions & answers. SWEKEER uses <span style="color: hsl(var(--stranger-yellow)); font-weight: bold; text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);">95%+ confidence</span> similarity matching to find the best responses.
+            </p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                {% if message.tags == 'success' %}
+                    <div class="training-card" style="background: linear-gradient(135deg, hsl(160 84% 39% / 0.15), hsl(160 84% 39% / 0.05)); border-color: hsl(160 84% 39% / 0.5); margin-bottom: 30px;">
+                        <div style="display: flex; align-items: flex-start; gap: 15px;">
+                            <i class="fas fa-check-circle" style="color: hsl(160 84% 70%); font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <span style="color: hsl(160 84% 70%); font-weight: 500;">{{ message }}</span>
+                        </div>
+                    </div>
+                {% elif message.tags == 'error' %}
+                    <div class="training-card" style="background: linear-gradient(135deg, hsl(var(--primary) / 0.15), hsl(var(--primary) / 0.05)); border-color: hsl(var(--primary) / 0.5); margin-bottom: 30px;">
+                        <div style="display: flex; align-items: flex-start; gap: 15px;">
+                            <i class="fas fa-exclamation-circle" style="color: hsl(var(--primary) / 0.8); font-size: 1.5rem; flex-shrink: 0; margin-top: 2px;"></i>
+                            <span style="color: hsl(var(--primary) / 0.8); font-weight: 500;">{{ message }}</span>
+                        </div>
+                    </div>
+                {% endif %}
+            {% endfor %}
+        {% endif %}
+
+        <!-- ADD NEW TRAINING PAIR FORM -->
+        <div class="training-card">
+            <div class="section-header">
+                <i class="fas fa-plus-circle"></i> Add New Q&A Training Pair
+            </div>
+
+            <form method="POST" action="{% url 'add_training' %}">
+                {% csrf_token %}
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label" for="question">
+                                <i class="fas fa-question-circle"></i> Question <span style="color: hsl(var(--primary));">*</span>
+                            </label>
+                            <textarea class="form-control" id="question" name="question" rows="3" placeholder="What question should SWEKEER recognize?" required style="min-height: 90px;"></textarea>
+                            <div class="form-text"><i class="fas fa-info-circle"></i> Be specific and clear for better matching</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-6">
+                        <div class="form-group">
+                            <label class="form-label" for="answer">
+                                <i class="fas fa-reply"></i> Answer <span style="color: hsl(var(--primary));">*</span>
+                            </label>
+                            <textarea class="form-control" id="answer" name="answer" rows="3" placeholder="What should SWEKEER respond with?" required style="min-height: 90px;"></textarea>
+                            <div class="form-text"><i class="fas fa-code"></i> HTML formatting supported (bold, links, line breaks)</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label" for="intent">
+                                <i class="fas fa-tag"></i> Intent <small style="color: hsl(var(--muted-foreground));">(Optional)</small>
+                            </label>
+                            <input type="text" class="form-control" id="intent" name="intent" placeholder="e.g., greeting, event_info, schedule">
+                            <div class="form-text">Categorize this pair for better organization</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label" for="keywords">
+                                <i class="fas fa-search"></i> Keywords <small style="color: hsl(var(--muted-foreground));">(Optional)</small>
+                            </label>
+                            <input type="text" class="form-control" id="keywords" name="keywords" placeholder="e.g., hello, hi, greetings">
+                            <div class="form-text">Comma-separated keywords for matching</div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-4">
+                        <div class="form-group">
+                            <label class="form-label" style="margin-bottom: 15px;">
+                                <i class="fas fa-power-off"></i> Status
+                            </label>
+                            <div style="display: flex; align-items: center; gap: 12px; padding: 12px 15px; background: hsl(var(--secondary) / 0.2); border-radius: 8px;">
+                                <input type="checkbox" class="form-check-input" id="is_active" name="is_active" checked style="width: 20px; height: 20px; cursor: pointer; accent-color: hsl(var(--primary));">
+                                <label class="form-check-label" for="is_active" style="margin: 0; cursor: pointer; color: hsl(var(--foreground)); font-weight: 500;">
+                                    Active - Use for matching
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-primary-custom w-100" style="padding: 14px;">
+                    <i class="fas fa-save"></i> Create Training Pair
+                </button>
+            </form>
+        </div>
+
+        <!-- TRAINING DATABASE TABLE -->
+        <div class="training-card">
+            <div class="section-header">
+                <i class="fas fa-database"></i> Training Database
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <input type="text" class="search-box" id="searchInput" placeholder="Search by question, answer, keywords, or intent...">
+            </div>
+
+            {% if training_pairs %}
+                <div style="overflow-x: auto;">
+                    <table class="training-table" id="trainingTable">
+                        <thead>
+                            <tr>
+                                <th>Question</th>
+                                <th>Answer Preview</th>
+                                <th>Intent</th>
+                                <th>Keywords</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>By</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for pair in training_pairs %}
+                                <tr data-searchtext="{{ pair.question|lower }} {{ pair.answer|lower }} {{ pair.keywords|lower }} {{ pair.intent|lower }}">
+                                    <td class="text-truncate" title="{{ pair.question }}" style="max-width: 150px;">{{ pair.question }}</td>
+                                    <td class="text-truncate" title="{{ pair.answer|striptags }}" style="max-width: 200px;">
+                                        {{ pair.answer|truncatewords:15|striptags }}
+                                    </td>
+                                    <td>
+                                        {% if pair.intent %}
+                                            <span class="badge-intent">{{ pair.intent }}</span>
+                                        {% else %}
+                                            <span style="color: hsl(var(--muted-foreground)); font-size: 0.9rem;">—</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if pair.keywords %}
+                                            <small style="color: hsl(var(--muted-foreground));">{{ pair.keywords|truncatewords:3 }}</small>
+                                        {% else %}
+                                            <small style="color: hsl(var(--muted-foreground));">—</small>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if pair.is_active %}
+                                            <span class="badge-active">
+                                                <i class="fas fa-check-circle"></i> Active
+                                            </span>
+                                        {% else %}
+                                            <span class="badge-inactive">
+                                                <i class="fas fa-ban"></i> Inactive
+                                            </span>
+                                        {% endif %}
+                                    </td>
+                                    <td><small style="color: hsl(var(--muted-foreground));">{{ pair.created_at|date:"d M Y" }}</small></td>
+                                    <td><small style="color: hsl(var(--muted-foreground));">{{ pair.created_by.username }}</small></td>
+                                    <td style="white-space: nowrap;">
+                                        <a href="{% url 'edit_training' pair.id %}" class="action-button btn-edit">
+                                            <i class="fas fa-edit"></i> Edit
+                                        </a>
+                                        <button type="button" class="action-button btn-delete" onclick="confirmDelete({{ pair.id }}, '{{ pair.question|escapejs }}')">
+                                            <i class="fas fa-trash"></i> Delete
+                                        </button>
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            {% else %}
+                <div class="empty-state">
+                    <i class="fas fa-inbox"></i>
+                    <p style="font-size: 1.2rem; font-weight: 600; color: hsl(var(--foreground)); margin-bottom: 10px;">No Training Pairs Yet</p>
+                    <p style="margin: 0;">Create your first Q&A pair above to start training SWEKEER!</p>
+                </div>
+            {% endif %}
+        </div>
+
+        <!-- HELP & DOCUMENTATION -->
+        <div class="training-card">
+            <div class="section-header">
+                <i class="fas fa-book"></i> Help & Guidelines
+            </div>
+
+            <div class="row">
+                <div class="col-lg-6">
+                    <div class="footer-tip">
+                        <h5><i class="fas fa-star"></i> Pro Tips for Training SWEKEER</h5>
+                        <ul style="margin: 0;">
+                            <li><strong>Be Specific:</strong> The more specific the question, the better SWEKEER can match similar user queries.</li>
+                            <li><strong>Add Variations:</strong> Create multiple Q&A pairs for different ways users might ask the same question.</li>
+                            <li><strong>Use Keywords:</strong> Keywords help boost matching accuracy for related questions.</li>
+                            <li><strong>Organize with Intent:</strong> Group related Q&As by intent (greeting, event_info, pricing, etc.).</li>
+                            <li><strong>Keep Active:</strong> Deactivate outdated pairs instead of deleting them for future reference.</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="col-lg-6">
+                    <div class="footer-tip">
+                        <h5><i class="fas fa-code"></i> HTML Formatting in Answers</h5>
+                        <p style="margin-bottom: 15px; color: hsl(var(--muted-foreground));">Answers support HTML for rich formatting:</p>
+                        <ul style="margin: 0; font-family: 'Courier New', monospace; font-size: 0.9rem;">
+                            <li><code>&lt;b&gt;Bold&lt;/b&gt;</code> or <code>&lt;strong&gt;Bold&lt;/strong&gt;</code></li>
+                            <li><code>&lt;i&gt;Italic&lt;/i&gt;</code> or <code>&lt;em&gt;Italic&lt;/em&gt;</code></li>
+                            <li><code>&lt;u&gt;Underline&lt;/u&gt;</code></li>
+                            <li><code>&lt;a href="url"&gt;Link&lt;/a&gt;</code></li>
+                            <li><code>&lt;br&gt;</code> for line breaks</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('keyup', function() {
+        const searchTerm = this.value.toLowerCase();
+        const rows = document.querySelectorAll('#trainingTable tbody tr');
+        
+        rows.forEach(row => {
+            const searchText = row.getAttribute('data-searchtext');
+            if (searchText.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+
+    // Delete confirmation
+    function confirmDelete(trainingId, question) {
+        if (confirm(`Are you sure you want to delete this training pair?\n\nQuestion: "${question}"`)) {
+            const form = document.createElement('form');
+            form.method = 'POST';
+            form.action = '{% url 'delete_training' 0 %}'.replace('0', trainingId);
+            
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfToken) {
+                form.appendChild(csrfToken.cloneNode());
+            }
+            
+            document.body.appendChild(form);
+            form.submit();
+        }
+    }
+</script>
+{% endblock %}

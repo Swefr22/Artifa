@@ -1,0 +1,232 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Delete Competition - Control Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 92% 48%;
+        --stranger-dark: 240 10% 3%;
+        --secondary: 240 15% 9%;
+        --foreground: 0 0% 95%;
+        --border: 240 10% 20%;
+        --card: 240 10% 8%;
+        --muted-foreground: 240 5% 64%;
+        --primary-foreground: 0 0% 100%;
+        --stranger-yellow: 51 100% 50%;
+        --stranger-orange: 25 100% 50%;
+    }
+
+    .hero {
+        position: relative;
+        padding: 100px 0 60px;
+        background: linear-gradient(135deg, hsl(var(--stranger-dark)), hsl(var(--secondary)));
+        color: hsl(var(--foreground));
+        text-align: center;
+    }
+
+    .hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(0 92% 48% / 0.1) 0%, transparent 50%);
+    }
+
+    .title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        background: linear-gradient(135deg, hsl(0 92% 48%), hsl(var(--stranger-orange)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+    }
+
+    .section {
+        padding: 60px 0 100px;
+        background: hsl(var(--stranger-dark) / 0.95);
+        min-height: 100vh;
+    }
+
+    .card {
+        max-width: 600px;
+        margin: 0 auto;
+        background: hsl(var(--card));
+        border: 2px solid hsl(0 92% 48% / 0.3);
+        border-radius: 15px;
+        padding: 40px;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    }
+
+    .warning-icon {
+        font-size: 4rem;
+        color: hsl(0 92% 48%);
+        margin-bottom: 20px;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.6; }
+    }
+
+    .warning-title {
+        font-size: 2rem;
+        color: hsl(0 92% 48%);
+        font-weight: 700;
+        margin-bottom: 15px;
+        font-family: 'Orbitron', sans-serif;
+    }
+
+    .comp-name {
+        font-size: 1.5rem;
+        color: hsl(var(--foreground));
+        background: hsl(0 92% 48% / 0.1);
+        border: 2px solid hsl(0 92% 48%);
+        padding: 15px 20px;
+        border-radius: 8px;
+        margin: 20px 0;
+        font-weight: 600;
+    }
+
+    .warning-text {
+        color: hsl(var(--muted-foreground));
+        margin: 20px 0;
+        line-height: 1.6;
+    }
+
+    .info-box {
+        background: hsl(var(--secondary) / 0.5);
+        border-left: 4px solid hsl(var(--stranger-yellow));
+        padding: 15px;
+        border-radius: 8px;
+        margin: 20px 0;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .info-box strong {
+        color: hsl(var(--foreground));
+    }
+
+    .button-group {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 12px 25px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        text-transform: uppercase;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        text-align: center;
+    }
+
+    .btn-danger {
+        background: hsl(0 92% 48%);
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 0 20px hsl(0 92% 48% / 0.3);
+    }
+
+    .btn-danger:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0 30px hsl(0 92% 48% / 0.5);
+    }
+
+    .btn-cancel {
+        background: hsl(var(--secondary));
+        color: hsl(var(--muted-foreground));
+        border: 2px solid hsl(var(--border));
+    }
+
+    .btn-cancel:hover {
+        border-color: hsl(var(--primary));
+        color: hsl(var(--foreground));
+    }
+
+    @media (max-width: 768px) {
+        .card {
+            margin: 0 15px;
+        }
+
+        .button-group {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="{% url 'manage_competitions' %}" style="color: hsl(var(--stranger-yellow)); text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <i class="fas fa-arrow-left"></i>Back to Competitions
+            </a>
+        </div>
+        <h1 class="title">
+            <i class="fas fa-trash me-3"></i>Delete Competition
+        </h1>
+    </div>
+</section>
+
+<!-- Confirmation Section -->
+<section class="section">
+    <div class="card">
+        <div style="text-align: center;">
+            <div class="warning-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <div class="warning-title">Are You Sure?</div>
+        </div>
+
+        <div class="comp-name">
+            <i class="fas fa-trophy me-2"></i>{{ comp.name }}
+        </div>
+
+        <p class="warning-text">
+            You are about to permanently delete this competition from the system. This action <strong>cannot be undone</strong>.
+        </p>
+
+        <div class="info-box">
+            <i class="fas fa-info-circle me-2"></i>
+            <strong>Current Registrations:</strong> {{ registration_count }} participant(s)
+            {% if registration_count > 0 %}
+            <p style="margin-top: 10px; margin-bottom: 0;">All registrations for this competition will also be deleted.</p>
+            {% endif %}
+        </div>
+
+        <div class="warning-text">
+            Consider archiving the competition instead of deleting if you want to keep the registration records.
+        </div>
+
+        <form method="post" style="margin-top: 30px;">
+            {% csrf_token %}
+            <div class="button-group">
+                <button type="submit" class="btn btn-danger">
+                    <i class="fas fa-trash me-2"></i>Yes, Delete It
+                </button>
+                <a href="{% url 'manage_competitions' %}" class="btn btn-cancel">
+                    <i class="fas fa-times me-2"></i>Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

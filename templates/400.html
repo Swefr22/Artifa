@@ -1,0 +1,325 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Bad Request - 400{% endblock %}
+
+{% block content %}
+<!-- Background Container with Hover Effects -->
+<div class="background-container" id="errorBackground">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<div class="container my-5" style="position: relative; z-index: 10;">
+    <div class="row justify-content-center text-center">
+        <div class="col-lg-8">
+            <div class="error-container" style="padding: 60px 20px;">
+                <!-- Error Code -->
+                <div class="error-code" style="font-size: 8rem; font-weight: 900; color: #ffc107; text-shadow: 0 0 30px rgba(255, 193, 7, 0.3); margin-bottom: 20px;">
+                    400
+                </div>
+
+                <!-- Error Title -->
+                <h1 style="font-size: 3rem; font-weight: 700; color: #333; margin-bottom: 15px;">
+                    <i class="fas fa-exclamation-triangle"></i> Bad Request
+                </h1>
+
+                <!-- Error Message -->
+                <p style="font-size: 1.2rem; color: #666; margin-bottom: 30px; line-height: 1.6;">
+                    The request you sent was malformed or invalid. Our server couldn't understand what you were trying to do.
+                </p>
+
+                <!-- Details -->
+                <div class="alert alert-danger" style="text-align: left; margin-bottom: 30px;">
+                    <h5 style="margin-bottom: 10px;"><i class="fas fa-exclamation-circle"></i> What went wrong?</h5>
+                    <ul style="margin-bottom: 0;">
+                        <li>The request parameters may be invalid or missing</li>
+                        <li>The data format may be incorrect</li>
+                        <li>A required field may be empty or malformed</li>
+                        <li>The request method may not be supported</li>
+                    </ul>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="d-flex gap-3 justify-content-center flex-wrap" style="margin-bottom: 30px;">
+                    <a href="{% url 'home' %}" class="btn btn-primary btn-lg">
+                        <i class="fas fa-home"></i> Go to Home
+                    </a>
+                    <a href="javascript:history.back()" class="btn btn-outline-primary btn-lg">
+                        <i class="fas fa-arrow-left"></i> Go Back
+                    </a>
+                    <a href="{% url 'contact' %}" class="btn btn-outline-secondary btn-lg">
+                        <i class="fas fa-envelope"></i> Report Issue
+                    </a>
+                </div>
+
+                <!-- Quick Links -->
+                <div style="margin-top: 40px; padding-top: 20px; border-top: 1px solid #eee;">
+                    <p style="color: #999; margin-bottom: 15px;">Quick Links:</p>
+                    <div class="d-flex gap-2 justify-content-center flex-wrap">
+                        <a href="{% url 'home' %}" style="color: #007bff; text-decoration: none;">Home</a>
+                        <span style="color: #ccc;">•</span>
+                        <a href="{% url 'events' %}" style="color: #007bff; text-decoration: none;">Events</a>
+                        <span style="color: #ccc;">•</span>
+                        <a href="{% url 'about' %}" style="color: #007bff; text-decoration: none;">About</a>
+                        <span style="color: #ccc;">•</span>
+                        <a href="{% url 'contact' %}" style="color: #007bff; text-decoration: none;">Contact</a>
+                    </div>
+                </div>
+
+                <!-- Tips -->
+                <div style="margin-top: 30px; padding: 15px; background-color: #f8f9fa; border-radius: 5px;">
+                    <p style="color: #666; font-size: 0.9rem; margin-bottom: 0;">
+                        <i class="fas fa-lightbulb"></i> Try refreshing the page or double-checking the form data before submitting again.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    /* Background Container Styles */
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: #0a0000;
+    }
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 1;
+        filter: brightness(0.4) contrast(1.1);
+        pointer-events: none;
+    }
+
+    /* Black cover with hover effect */
+    .black-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000;
+        z-index: 2;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .noise-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    .error-container {
+        animation: slideUp 0.8s ease-out;
+    }
+</style>
+
+<script>
+    // Lightning Effects
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 3,
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+
+        if (Math.random() < config.branchChance) {
+            drawLightning(
+                midX,
+                midY,
+                midX + (Math.random() - 0.5) * displace * 2,
+                midY + Math.random() * displace * 2,
+                displace / 2,
+                depth + 1
+            );
+        }
+    }
+
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        
+        if (!blackCover || !noiseLayer) return;
+        
+        const maskGradients = [];
+        const steps = 10;
+        
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            
+            maskGradients.push(
+                `radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`
+            );
+        }
+        
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const startY = 0;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+
+        createLightningHoles(startX, startY, endX, endY);
+        drawLightning(startX, startY, endX, endY, 90);
+
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            
+            drawLightning(startX, startY, endX, endY, 90 * alpha);
+
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    setInterval(() => {
+        lightningStrike();
+    }, 2000);
+
+    setTimeout(() => {
+        lightningStrike();
+    }, 500);
+    
+    document.addEventListener("mousemove", function(e) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+</script>
+{% endblock %}

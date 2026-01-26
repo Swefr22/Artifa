@@ -1,0 +1,1150 @@
+<!-- This template has been removed. Events page is no longer available. -->
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}Events - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Fixed background container with reveal effect */
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+    }
+
+    .background-image {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 1;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    .background-container:hover .background-image {
+        opacity: 0.8;
+        z-index: 5;
+    }
+
+    .black-cover {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: #000000;
+        z-index: 2;
+        -webkit-mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        pointer-events: none;
+    }
+
+    .noise-layer {
+        --x: -300px;
+        --y: -300px;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.2'/%3E%3C/svg%3E");
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 3;
+        -webkit-mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+        mask-image: radial-gradient(circle 200px at var(--x) var(--y), transparent 0%, transparent 60%, black 100%);
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Events Hero */
+    .events-hero {
+        position: relative;
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .events-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 70%, hsl(var(--accent) / 0.1) 0%, transparent 50%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 2px, 
+                hsl(var(--primary) / 0.03) 2px, 
+                hsl(var(--primary) / 0.03) 4px);
+        animation: portal-pulse 4s infinite alternate;
+    }
+
+    @keyframes portal-pulse {
+        0% { opacity: 0.3; }
+        100% { opacity: 0.6; }
+    }
+
+    .events-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-yellow)),
+            hsl(var(--primary)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+        position: relative;
+    }
+
+    .events-subtitle {
+        font-size: 1.5rem;
+        color: hsl(var(--stranger-yellow));
+        margin-bottom: 3rem;
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);
+        max-width: 800px;
+        margin-left: auto;
+        margin-right: auto;
+    }
+
+    /* Filter Tabs */
+    .events-filter {
+        background: hsl(var(--card) / 0.8);
+        backdrop-filter: blur(20px);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 30px;
+        margin: -50px auto 50px;
+        max-width: 800px;
+        box-shadow: var(--shadow-card);
+        position: relative;
+        z-index: 10;
+    }
+
+    .filter-tabs {
+        display: flex;
+        justify-content: center;
+        gap: 20px;
+        flex-wrap: wrap;
+    }
+
+    .filter-tab {
+        padding: 15px 40px;
+        background: hsl(var(--secondary));
+        border: 2px solid hsl(var(--border));
+        border-radius: 50px;
+        color: hsl(var(--foreground));
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .filter-tab::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(var(--primary) / 0.2), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .filter-tab:hover::before {
+        left: 100%;
+    }
+
+    .filter-tab:hover {
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary));
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .filter-tab.active {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        border-color: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    /* Event Cards */
+    .events-section {
+        padding: 50px 0 100px;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .section-heading {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2.5rem;
+        font-weight: 900;
+        margin-bottom: 2rem;
+        padding-bottom: 15px;
+        position: relative;
+        display: inline-block;
+    }
+
+    .section-heading::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        border-radius: 2px;
+    }
+
+    .technical-heading {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-red-glow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .nontech-heading {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+    }
+
+    .event-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 30px;
+        margin-bottom: 30px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .event-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s ease;
+    }
+
+    .event-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .event-card:hover {
+        transform: translateY(-10px) scale(1.02);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .event-icon {
+        font-size: 3rem;
+        color: hsl(var(--primary));
+        margin-bottom: 20px;
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+        transition: all 0.4s ease;
+    }
+
+    .nontech .event-icon {
+        color: hsl(var(--stranger-yellow));
+        filter: drop-shadow(0 0 15px hsl(var(--stranger-yellow) / 0.5));
+    }
+
+    .event-card:hover .event-icon {
+        transform: rotate(15deg) scale(1.2);
+    }
+
+    .event-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 15px;
+        line-height: 1.3;
+    }
+
+    .event-desc {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.7;
+        margin-bottom: 20px;
+        flex-grow: 1;
+    }
+
+    .event-meta {
+        background: hsl(var(--secondary) / 0.5);
+        border-radius: 10px;
+        padding: 15px;
+        margin: 20px 0;
+        border-left: 4px solid hsl(var(--primary));
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 8px;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .meta-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .meta-icon {
+        color: hsl(var(--primary));
+        margin-right: 10px;
+        width: 20px;
+        text-align: center;
+    }
+
+    .nontech .meta-icon {
+        color: hsl(var(--stranger-yellow));
+    }
+
+    .event-badge {
+        display: inline-block;
+        padding: 8px 20px;
+        border-radius: 20px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        font-size: 0.9rem;
+        margin-bottom: 15px;
+    }
+
+    .badge-technical {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-red-glow)));
+        color: hsl(var(--primary-foreground));
+        box-shadow: 0 0 15px hsl(var(--primary) / 0.5);
+    }
+
+    .badge-nontech {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+        color: hsl(var(--background));
+        box-shadow: 0 0 15px hsl(var(--stranger-yellow) / 0.5);
+    }
+
+    .event-footer {
+        margin-top: 25px;
+        padding-top: 20px;
+        border-top: 1px solid hsl(var(--border));
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .event-price {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: hsl(var(--stranger-yellow));
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.3);
+    }
+
+    .event-button {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .event-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(0 100% 100% / 0.2), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+
+    .event-button:hover {
+        transform: translateY(-3px) scale(1.05);
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    .event-button:hover::before {
+        left: 100%;
+    }
+
+    .nontech .event-button {
+        background: linear-gradient(135deg, hsl(var(--stranger-yellow)), hsl(var(--stranger-orange)));
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 30px;
+        background: hsl(var(--card) / 0.5);
+        border: 2px dashed hsl(var(--border));
+        border-radius: 20px;
+        margin: 40px 0;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-text {
+        font-size: 1.2rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 30px;
+    }
+
+    /* Event Categories */
+    .categories-section {
+        padding: 80px 0;
+        background: hsl(var(--background));
+        position: relative;
+    }
+
+    .category-card {
+        text-align: center;
+        padding: 40px 30px;
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        transition: all 0.4s ease;
+        height: 100%;
+    }
+
+    .category-card:hover {
+        transform: translateY(-10px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .category-icon {
+        font-size: 4rem;
+        color: hsl(var(--primary));
+        margin-bottom: 25px;
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+        transition: all 0.4s ease;
+    }
+
+    .category-card:hover .category-icon {
+        transform: scale(1.2) rotate(10deg);
+    }
+
+    .category-title {
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 15px;
+    }
+
+    .category-count {
+        display: inline-block;
+        background: hsl(var(--primary) / 0.2);
+        color: hsl(var(--primary));
+        padding: 5px 15px;
+        border-radius: 20px;
+        font-weight: 700;
+        font-size: 1.1rem;
+        margin-bottom: 20px;
+    }
+
+    /* FAQ Section */
+    .faq-section {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .faq-item {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+
+    .faq-item:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .faq-question {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 15px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .faq-answer {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.7;
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height 0.4s ease;
+    }
+
+    .faq-item.active .faq-answer {
+        max-height: 500px;
+        margin-top: 15px;
+    }
+
+    .faq-toggle {
+        color: hsl(var(--primary));
+        font-size: 1.5rem;
+        transition: transform 0.3s ease;
+    }
+
+    .faq-item.active .faq-toggle {
+        transform: rotate(45deg);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .events-title {
+            font-size: 3rem;
+        }
+        
+        .filter-tabs {
+            gap: 10px;
+        }
+        
+        .filter-tab {
+            padding: 12px 25px;
+            font-size: 0.9rem;
+        }
+        
+        .section-heading {
+            font-size: 2rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .events-hero {
+            padding: 120px 0 60px;
+        }
+        
+        .events-title {
+            font-size: 2.5rem;
+        }
+        
+        .events-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .events-filter {
+            padding: 20px;
+            margin: -30px auto 30px;
+        }
+        
+        .filter-tabs {
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .filter-tab {
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 10px;
+        }
+        
+        .event-card {
+            padding: 25px 20px;
+        }
+        
+        .event-title {
+            font-size: 1.5rem;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .events-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+        
+        .events-subtitle {
+            font-size: 1rem;
+        }
+        
+        .event-footer {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+        
+        .event-button {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background Reveal Effect -->
+<div class="background-container">
+    <img src="{% static 'images/stranger things.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<!-- Events Hero -->
+<section class="events-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="events-title">CHOOSE YOUR PORTAL</h1>
+                <p class="events-subtitle">
+                    Step through one of our interdimensional gateways. Each event is a unique challenge waiting for brave explorers like you.
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Event Filter -->
+<div class="container">
+    <div class="events-filter">
+        <div class="filter-tabs">
+            <div class="filter-tab active" data-filter="all">
+                <i class="fas fa-globe me-2"></i>All Portals
+            </div>
+            <div class="filter-tab" data-filter="technical">
+                <i class="fas fa-microchip me-2"></i>Technical
+            </div>
+            <div class="filter-tab" data-filter="nontech">
+                <i class="fas fa-gamepad me-2"></i>Non-Technical
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Categories Overview -->
+<section class="categories-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-md-6">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-microchip"></i>
+                    </div>
+                    <h3 class="category-title">Technical Portals</h3>
+                    <div class="category-count">{{ technical_events|length }} Challenges</div>
+                    <p>For those who speak the language of machines. Test your coding, problem-solving, and technical skills against formidable challenges.</p>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="category-card">
+                    <div class="category-icon">
+                        <i class="fas fa-gamepad"></i>
+                    </div>
+                    <h3 class="category-title">Non-Technical Portals</h3>
+                    <div class="category-count">{{ non_technical_events|length }} Adventures</div>
+                    <p>For creative minds and strategic thinkers. Showcase your creativity, communication, and collaborative skills in diverse challenges.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Technical Events -->
+<section class="events-section">
+    <div class="container">
+        <h2 class="section-heading technical-heading">
+            <i class="fas fa-microchip me-3"></i>Technical Portals
+        </h2>
+        
+        {% if technical_events %}
+        <div class="row g-4" id="technical-events">
+            {% for event in technical_events %}
+            <div class="col-lg-4 col-md-6 event-item" data-type="technical">
+                <div class="event-card">
+                    <div class="event-badge badge-technical">
+                        <i class="fas fa-code me-1"></i>Technical
+                    </div>
+                    <div class="event-icon">
+                        <i class="fas fa-{{ event.icon_class|default:'microchip' }}"></i>
+                    </div>
+                    <h3 class="event-title">{{ event.name|default:"Code Demogorgon" }}</h3>
+                    <p class="event-desc">
+                        {{ event.description|default:"Battle the ultimate coding challenge in this intense hackathon that will test your algorithmic thinking and problem-solving skills."|truncatewords:25 }}
+                    </p>
+                    
+                    <div class="event-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-users"></i></span>
+                            <span>
+                                {% if event.is_team_event %}
+                                Team Event: {{ event.min_team_size|default:2 }}-{{ event.max_team_size|default:4 }} members
+                                {% else %}
+                                Individual Challenge
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-clock"></i></span>
+                            <span>Duration: {{ event.duration|default:"3 Hours" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-trophy"></i></span>
+                            <span>Prize: ₹{{ event.prize_money|default:"10,000" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-footer">
+                        <div class="event-price">
+                            <i class="fas fa-rupee-sign me-1"></i>{{ event.registration_fee|default:"Free" }}
+                        </div>
+                        <button class="event-button" data-event="{{ event.name|default:'Code Demogorgon' }}">
+                            <i class="fas fa-portal-enter me-2"></i>Enter Portal
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="text-muted mb-3">No Technical Portals Active</h3>
+            <p class="empty-text">
+                The technical portals are currently being calibrated. Check back soon for interdimensional coding challenges!
+            </p>
+            <a href="{% url 'schedule' %}" class="btn btn-outline-danger">
+                <i class="fas fa-clock me-2"></i>Check Schedule
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Non-Technical Events -->
+<section class="events-section" style="background: hsl(var(--background));">
+    <div class="container">
+        <h2 class="section-heading nontech-heading">
+            <i class="fas fa-gamepad me-3"></i>Non-Technical Portals
+        </h2>
+        
+        {% if non_technical_events %}
+        <div class="row g-4" id="nontech-events">
+            {% for event in non_technical_events %}
+            <div class="col-lg-4 col-md-6 event-item nontech" data-type="nontech">
+                <div class="event-card">
+                    <div class="event-badge badge-nontech">
+                        <i class="fas fa-puzzle-piece me-1"></i>Non-Tech
+                    </div>
+                    <div class="event-icon">
+                        <i class="fas fa-{{ event.icon_class|default:'gamepad' }}"></i>
+                    </div>
+                    <h3 class="event-title">{{ event.name|default:"Mind Flayer's Challenge" }}</h3>
+                    <p class="event-desc">
+                        {{ event.description|default:"Strategic gaming competition that tests your mind games, quick thinking, and ability to outsmart opponents in psychological battles."|truncatewords:25 }}
+                    </p>
+                    
+                    <div class="event-meta">
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-users"></i></span>
+                            <span>
+                                {% if event.is_team_event %}
+                                Team Event: {{ event.min_team_size|default:2 }}-{{ event.max_team_size|default:4 }} members
+                                {% else %}
+                                Individual Challenge
+                                {% endif %}
+                            </span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-clock"></i></span>
+                            <span>Duration: {{ event.duration|default:"2 Hours" }}</span>
+                        </div>
+                        <div class="meta-item">
+                            <span class="meta-icon"><i class="fas fa-trophy"></i></span>
+                            <span>Prize: ₹{{ event.prize_money|default:"5,000" }}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="event-footer">
+                        <div class="event-price">
+                            <i class="fas fa-rupee-sign me-1"></i>{{ event.registration_fee|default:"Free" }}
+                        </div>
+                        <button class="event-button" data-event="{{ event.name|default:'Mind Flayer\'s Challenge' }}">
+                            <i class="fas fa-portal-enter me-2"></i>Enter Portal
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-search"></i>
+            </div>
+            <h3 class="text-muted mb-3">No Non-Technical Portals Active</h3>
+            <p class="empty-text">
+                The creative portals are undergoing maintenance. Exciting games and creative challenges coming soon!
+            </p>
+            <a href="{% url 'schedule' %}" class="btn btn-outline-warning">
+                <i class="fas fa-clock me-2"></i>Check Schedule
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- FAQ Section -->
+<section class="faq-section">
+    <div class="container">
+        <h2 class="text-center mb-5" style="color: hsl(var(--primary)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem;">
+            <i class="fas fa-question-circle me-3"></i>Portal Information
+        </h2>
+        
+        <div class="row justify-content-center">
+            <div class="col-lg-8">
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>How do I register for events?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Click the "Enter Portal" button on any event card. You'll be redirected to the registration page where you can select the events you want to participate in. You can register for multiple events!
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Can I participate in both technical and non-technical events?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Yes! You can participate in any number of events as long as their schedules don't overlap. Check the schedule page to plan your day effectively.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What's the team size for team events?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Team sizes vary by event. Check the event card for specific team requirements. You can register as a team during the registration process.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>Are there any registration fees?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        Most events are free, but some special events may have nominal registration fees. The fee (if any) is clearly mentioned on each event card.
+                    </div>
+                </div>
+                
+                <div class="faq-item">
+                    <div class="faq-question">
+                        <span>What should I bring to the events?</span>
+                        <span class="faq-toggle">+</span>
+                    </div>
+                    <div class="faq-answer">
+                        For technical events: your laptop with necessary software. For all events: your college ID, enthusiasm, and readiness to explore the Upside Down!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Registration CTA -->
+<section style="padding: 80px 0; background: linear-gradient(135deg, hsl(var(--primary) / 0.9), hsl(var(--stranger-red-glow) / 0.9));">
+    <div class="container">
+        <div class="row justify-content-center text-center">
+            <div class="col-lg-8">
+                <h2 class="mb-4" style="color: hsl(var(--primary-foreground)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem;">
+                    <i class="fas fa-portal-enter me-3"></i>Ready to Enter the Upside Down?
+                </h2>
+                <p class="mb-4" style="color: hsl(var(--primary-foreground) / 0.9); font-size: 1.2rem;">
+                    Don't just watch from the sidelines. Step through the portal and become part of the adventure. Limited spots available in each event!
+                </p>
+                <a href="{% url 'register' %}" class="btn btn-lg" style="background: hsl(var(--background)); color: hsl(var(--primary)); padding: 15px 50px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">
+                    <i class="fas fa-user-plus me-2"></i>Register Now
+                </a>
+                <p class="mt-3" style="color: hsl(var(--primary-foreground) / 0.7);">
+                    <small><i class="fas fa-exclamation-triangle me-1"></i>Registration closes: February 1, 2026</small>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Lightning Effects
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 5,
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+        if (Math.random() < config.branchChance) {
+            drawLightning(midX, midY, midX + (Math.random() - 0.5) * displace * 2, midY + Math.random() * displace * 2, displace / 2, depth + 1);
+        }
+    }
+
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (!blackCover || !noiseLayer) return;
+        const maskGradients = [];
+        for (let i = 0; i <= 10; i++) {
+            const t = i / 10;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            maskGradients.push(`radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`);
+        }
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+        createLightningHoles(startX, 0, endX, endY);
+        drawLightning(startX, 0, endX, endY, 90);
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            drawLightning(startX, 0, endX, endY, 90 * alpha);
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    setInterval(() => { lightningStrike(); }, 2000);
+    setTimeout(() => { lightningStrike(); }, 500);
+
+    document.addEventListener("mousemove", function(e) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        // Filter functionality
+        const filterTabs = document.querySelectorAll('.filter-tab');
+        const eventItems = document.querySelectorAll('.event-item');
+        
+        filterTabs.forEach(tab => {
+            tab.addEventListener('click', function() {
+                // Remove active class from all tabs
+                filterTabs.forEach(t => t.classList.remove('active'));
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                const filter = this.dataset.filter;
+                
+                // Show/hide events based on filter
+                eventItems.forEach(item => {
+                    if (filter === 'all') {
+                        item.style.display = 'block';
+                    } else {
+                        if (item.dataset.type === filter) {
+                            item.style.display = 'block';
+                        } else {
+                            item.style.display = 'none';
+                        }
+                    }
+                });
+            });
+        });
+        
+        // FAQ toggle functionality
+        const faqItems = document.querySelectorAll('.faq-item');
+        faqItems.forEach(item => {
+            const question = item.querySelector('.faq-question');
+            question.addEventListener('click', function() {
+                const isActive = item.classList.contains('active');
+                
+                // Close all other FAQ items
+                faqItems.forEach(faq => {
+                    faq.classList.remove('active');
+                });
+                
+                // Toggle current item
+                if (!isActive) {
+                    item.classList.add('active');
+                }
+            });
+        });
+        
+        // Event button click handler
+        const eventButtons = document.querySelectorAll('.event-button');
+        eventButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const eventName = this.dataset.event;
+                
+                // Show registration modal or redirect
+                const userConfirmed = confirm(`You are about to enter the portal for "${eventName}". Do you want to proceed to registration?`);
+                
+                if (userConfirmed) {
+                    window.location.href = "{% url 'register' %}";
+                }
+            });
+        });
+        
+        // Add hover effect to event cards
+        eventItems.forEach(item => {
+            const card = item.querySelector('.event-card');
+            
+            item.addEventListener('mouseenter', function() {
+                card.style.transform = 'translateY(-10px) scale(1.02)';
+            });
+            
+            item.addEventListener('mouseleave', function() {
+                card.style.transform = 'translateY(0) scale(1)';
+            });
+        });
+    });
+</script>
+{% endblock %}

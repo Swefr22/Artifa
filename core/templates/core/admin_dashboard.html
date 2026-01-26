@@ -1,0 +1,1180 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Admin Dashboard - The Control Room{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Dashboard Hero */
+    .dashboard-hero {
+        position: relative;
+        padding: 150px 0 80px;
+        background: linear-gradient(135deg, 
+            hsl(var(--stranger-dark) / 0.95), 
+            hsl(var(--secondary) / 0.95));
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .dashboard-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(var(--accent) / 0.1) 0%, transparent 50%),
+            repeating-linear-gradient(45deg, 
+                transparent, 
+                transparent 2px, 
+                hsl(var(--primary) / 0.03) 2px, 
+                hsl(var(--primary) / 0.03) 4px);
+    }
+
+    .dashboard-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 4px;
+        background: linear-gradient(135deg, 
+            hsl(var(--primary)), 
+            hsl(var(--stranger-yellow)),
+            hsl(var(--primary)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+        position: relative;
+    }
+
+    .dashboard-subtitle {
+        font-size: 1.5rem;
+        color: hsl(var(--stranger-yellow));
+        margin-bottom: 2rem;
+        text-shadow: 0 0 10px hsl(var(--stranger-yellow) / 0.5);
+    }
+
+    /* Stats Overview */
+    .stats-overview {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .stat-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        height: 100%;
+    }
+
+    .stat-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.6s ease;
+    }
+
+    .stat-card:hover::before {
+        transform: scaleX(1);
+    }
+
+    .stat-card:hover {
+        transform: translateY(-10px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .stat-icon {
+        font-size: 3.5rem;
+        color: hsl(var(--primary));
+        margin-bottom: 25px;
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+        transition: all 0.4s ease;
+    }
+
+    .stat-card:hover .stat-icon {
+        transform: scale(1.2) rotate(10deg);
+        color: hsl(var(--stranger-yellow));
+    }
+
+    .stat-title {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 15px;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    .stat-value {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 4rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        line-height: 1;
+        margin-bottom: 15px;
+        text-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+
+    .stat-change {
+        font-size: 0.9rem;
+        padding: 5px 15px;
+        border-radius: 20px;
+        display: inline-block;
+        font-weight: 600;
+    }
+
+    .change-positive {
+        background: hsl(142 76% 36% / 0.2);
+        color: hsl(142 76% 70%);
+        border: 1px solid hsl(142 76% 36%);
+    }
+
+    .change-negative {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 70%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    /* Dashboard Widgets */
+    .dashboard-widgets {
+        padding: 80px 0;
+        background: hsl(var(--background));
+        position: relative;
+    }
+
+    .widget-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 0;
+        overflow: hidden;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        height: 100%;
+    }
+
+    .widget-card:hover {
+        transform: translateY(-5px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .widget-header {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        padding: 25px 30px;
+        border-bottom: 2px solid hsl(var(--primary));
+    }
+
+    .widget-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--primary-foreground));
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .widget-body {
+        padding: 30px;
+    }
+
+    /* Table Styling */
+    .dashboard-table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0;
+    }
+
+    .dashboard-table thead th {
+        background: hsl(var(--secondary));
+        color: hsl(var(--primary));
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        padding: 20px;
+        border-bottom: 2px solid hsl(var(--primary));
+        position: sticky;
+        top: 0;
+        z-index: 10;
+    }
+
+    .dashboard-table tbody td {
+        padding: 18px 20px;
+        border-bottom: 1px solid hsl(var(--border));
+        color: hsl(var(--muted-foreground));
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-table tbody tr {
+        background: hsl(var(--card));
+        transition: all 0.3s ease;
+    }
+
+    .dashboard-table tbody tr:hover {
+        background: hsl(var(--secondary));
+        transform: translateX(5px);
+    }
+
+    .dashboard-table tbody tr:hover td {
+        color: hsl(var(--foreground));
+    }
+
+    .table-badge {
+        display: inline-block;
+        padding: 6px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .badge-success {
+        background: hsl(142 76% 36% / 0.2);
+        color: hsl(142 76% 70%);
+        border: 1px solid hsl(142 76% 36%);
+    }
+
+    .badge-warning {
+        background: hsl(45 97% 77% / 0.2);
+        color: hsl(45 97% 50%);
+        border: 1px solid hsl(45 97% 77%);
+    }
+
+    .badge-danger {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 70%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    /* Charts Section */
+    .charts-section {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .chart-container {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 30px;
+        height: 100%;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .chart-container::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .chart-placeholder {
+        text-align: center;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .chart-icon {
+        font-size: 4rem;
+        color: hsl(var(--primary) / 0.3);
+        margin-bottom: 20px;
+    }
+
+    /* Quick Actions */
+    .actions-section {
+        padding: 80px 0;
+        background: hsl(var(--background));
+        position: relative;
+    }
+
+    .action-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px 30px;
+        text-align: center;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        cursor: pointer;
+        height: 100%;
+    }
+
+    .action-card:hover {
+        transform: translateY(-10px);
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+    }
+
+    .action-icon {
+        font-size: 3.5rem;
+        color: hsl(var(--primary));
+        margin-bottom: 25px;
+        filter: drop-shadow(0 0 15px hsl(var(--primary) / 0.5));
+        transition: all 0.4s ease;
+    }
+
+    .action-card:hover .action-icon {
+        transform: scale(1.2);
+        color: hsl(var(--stranger-yellow));
+    }
+
+    .action-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        margin-bottom: 15px;
+    }
+
+    .action-desc {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.6;
+        margin-bottom: 25px;
+    }
+
+    .action-button {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .action-button::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, hsl(0 100% 100% / 0.2), transparent);
+        transition: left 0.6s ease;
+        z-index: -1;
+    }
+
+    .action-button:hover::before {
+        left: 100%;
+    }
+
+    .action-button:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-red-intense);
+    }
+
+    /* Alerts Section */
+    .alerts-section {
+        padding: 80px 0;
+        background: var(--gradient-dark);
+        position: relative;
+    }
+
+    .alert-card {
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        margin-bottom: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .alert-card:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-red-glow);
+    }
+
+    .alert-header {
+        display: flex;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .alert-icon {
+        font-size: 1.5rem;
+        color: hsl(var(--primary));
+        margin-right: 15px;
+    }
+
+    .alert-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        flex: 1;
+    }
+
+    .alert-badge {
+        padding: 5px 15px;
+        border-radius: 15px;
+        font-size: 0.85rem;
+        font-weight: 600;
+    }
+
+    .alert-high {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 70%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    .alert-medium {
+        background: hsl(45 97% 77% / 0.2);
+        color: hsl(45 97% 50%);
+        border: 1px solid hsl(45 97% 77%);
+    }
+
+    .alert-low {
+        background: hsl(142 76% 36% / 0.2);
+        color: hsl(142 76% 70%);
+        border: 1px solid hsl(142 76% 36%);
+    }
+
+    .alert-content {
+        color: hsl(var(--muted-foreground));
+        line-height: 1.6;
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .dashboard-title {
+            font-size: 3rem;
+        }
+        
+        .stat-value {
+            font-size: 3rem;
+        }
+        
+        .widget-title {
+            font-size: 1.3rem;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .dashboard-hero {
+            padding: 120px 0 60px;
+        }
+        
+        .dashboard-title {
+            font-size: 2.5rem;
+        }
+        
+        .dashboard-subtitle {
+            font-size: 1.2rem;
+        }
+        
+        .stat-card {
+            padding: 30px 20px;
+        }
+        
+        .widget-body {
+            padding: 20px;
+        }
+        
+        .dashboard-table thead th,
+        .dashboard-table tbody td {
+            padding: 15px;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .dashboard-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+        
+        .stat-value {
+            font-size: 2.5rem;
+        }
+        
+        .dashboard-table {
+            display: block;
+            overflow-x: auto;
+        }
+    }
+
+    /* Refresh Button Animation */
+    @keyframes spin {
+        from {
+            transform: rotate(0deg);
+        }
+        to {
+            transform: rotate(360deg);
+        }
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            opacity: 1;
+        }
+        50% {
+            opacity: 0.7;
+        }
+    }
+
+    .fa-spin {
+        animation: spin 1s linear infinite;
+    }
+
+    .fa-pulse {
+        animation: pulse 1.5s ease-in-out infinite;
+    }
+
+    #refreshBtn:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+    }
+
+    #refreshBtn:hover:not(:disabled) {
+        transform: scale(1.05);
+        transition: transform 0.3s ease;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Dashboard Hero -->
+<section class="dashboard-hero">
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-lg-10 col-xl-8">
+                <h1 class="dashboard-title">CONTROL ROOM</h1>
+                <p class="dashboard-subtitle">Monitor the Upside Down • Manage the Journey</p>
+                <div class="text-center">
+                    <a href="/admin/" class="btn btn-lg me-3" style="background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange))); color: hsl(var(--primary-foreground)); border: none; padding: 15px 40px; font-weight: 700; text-transform: uppercase; letter-spacing: 2px;">
+                        <i class="fas fa-user-shield me-2"></i>Django Admin
+                    </a>
+                    <button class="btn btn-lg btn-outline-light" id="refreshBtn" onclick="refreshData()">
+                        <i class="fas fa-sync-alt me-2"></i>Refresh Data
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Stats Overview -->
+<section class="stats-overview">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-title">Total Participants</div>
+                    <div class="stat-value">{{ total_participants|default:"0" }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up me-1"></i>12% from yesterday
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-list"></i>
+                    </div>
+                    <div class="stat-title">Total Registrations</div>
+                    <div class="stat-value">{{ total_registrations|default:"0" }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up me-1"></i>8% from yesterday
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-calendar-day"></i>
+                    </div>
+                    <div class="stat-title">Active Events</div>
+                    <div class="stat-value">{{ active_events|default:"15" }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-plus me-1"></i>3 new events
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="stat-card">
+                    <div class="stat-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <div class="stat-title">Total Teams</div>
+                    <div class="stat-value">{{ total_teams|default:"0" }}</div>
+                    <div class="stat-change change-positive">
+                        <i class="fas fa-arrow-up me-1"></i>Team management
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Dashboard Widgets -->
+<section class="dashboard-widgets">
+    <div class="container">
+        <div class="row g-4 mb-5">
+            <div class="col-lg-8">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-chart-bar"></i> Event-wise Registration Count
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Event Portal</th>
+                                        <th>Registrations</th>
+                                        <th>Capacity</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for stat in event_stats %}
+                                    <tr>
+                                        <td>
+                                            <strong style="color: hsl(var(--primary));">{{ stat.event }}</strong>
+                                        </td>
+                                        <td>
+                                            <span class="table-badge badge-warning">{{ stat.count }}</span>
+                                        </td>
+                                        <td>
+                                            {% widthratio stat.count stat.capacity|default:100 100 as percentage %}
+                                            <div style="display: flex; align-items: center; gap: 10px;">
+                                                <div style="flex: 1; background: hsl(var(--border)); height: 8px; border-radius: 4px; overflow: hidden;">
+                                                    <div style="width: {{ percentage }}%; background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange))); height: 100%;"></div>
+                                                </div>
+                                                <span style="color: hsl(var(--muted-foreground)); font-size: 0.9rem;">{{ percentage }}%</span>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            {% if percentage >= 90 %}
+                                            <span class="table-badge badge-danger">Full</span>
+                                            {% elif percentage >= 70 %}
+                                            <span class="table-badge badge-warning">Almost Full</span>
+                                            {% else %}
+                                            <span class="table-badge badge-success">Available</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="4" style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px;">
+                                            <i class="fas fa-database fa-2x mb-3" style="opacity: 0.3;"></i>
+                                            <p>No registration data available</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-4">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-chart-pie"></i> Registration Ratio
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <div class="chart-icon">
+                                    <i class="fas fa-chart-pie"></i>
+                                </div>
+                                <h4 style="color: hsl(var(--foreground)); margin-bottom: 10px;">Registration Distribution</h4>
+                                <div style="text-align: left; margin-top: 30px;">
+                                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                        <div style="width: 15px; height: 15px; background: hsl(var(--primary)); border-radius: 3px; margin-right: 10px;"></div>
+                                        <span>Technical Events: <strong>{{ tech_registrations|default:"65" }}%</strong></span>
+                                    </div>
+                                    <div style="display: flex; align-items: center; margin-bottom: 15px;">
+                                        <div style="width: 15px; height: 15px; background: hsl(var(--stranger-yellow)); border-radius: 3px; margin-right: 10px;"></div>
+                                        <span>Non-Technical Events: <strong>{{ nontech_registrations|default:"35" }}%</strong></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-lg-12">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-history"></i> Recent Portal Entries
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Explorer</th>
+                                        <th>Portal</th>
+                                        <th>Team Dimension</th>
+                                        <th>Entry Time</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for reg in recent_registrations %}
+                                    <tr>
+                                        <td>
+                                            <strong style="color: hsl(var(--primary));">{{ reg.full_name }}</strong><br>
+                                            <small style="color: hsl(var(--muted-foreground));">{{ reg.email }}</small>
+                                        </td>
+                                        <td>
+                                            <span style="color: hsl(var(--foreground));">{{ reg.event.name }}</span>
+                                        </td>
+                                        <td>
+                                            {% if reg.team_name %}
+                                            <span class="table-badge badge-success">{{ reg.team_name }}</span>
+                                            {% else %}
+                                            <span style="color: hsl(var(--muted-foreground)); font-style: italic;">Solo Explorer</span>
+                                            {% endif %}
+                                        </td>
+                                        <td>
+                                            <span style="color: hsl(var(--foreground));">{{ reg.registered_at|date:"M d" }}</span><br>
+                                            <small style="color: hsl(var(--muted-foreground));">{{ reg.registered_at|time:"H:i" }}</small>
+                                        </td>
+                                        <td>
+                                            <span class="table-badge badge-success">Active</span>
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="5" style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px;">
+                                            <i class="fas fa-user-clock fa-2x mb-3" style="opacity: 0.3;"></i>
+                                            <p>No portal entries recorded yet</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Team Statistics Section -->
+        {% if total_teams > 0 %}
+        <div class="row g-4 mt-2">
+            <div class="col-lg-12">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-users"></i> Team Management ({{ total_teams }} Teams)
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="table-responsive">
+                            <table class="dashboard-table">
+                                <thead>
+                                    <tr>
+                                        <th>Team Name</th>
+                                        <th>Event</th>
+                                        <th>Team Leader</th>
+                                        <th>Members</th>
+                                        <th>Created Date</th>
+                                        <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for team in team_stats %}
+                                    <tr>
+                                        <td>
+                                            <strong style="color: hsl(var(--primary));">{{ team.name }}</strong>
+                                        </td>
+                                        <td>
+                                            <span style="color: hsl(var(--foreground));">{{ team.event }}</span>
+                                        </td>
+                                        <td>
+                                            <span style="color: hsl(var(--muted-foreground));">{{ team.leader }}</span>
+                                        </td>
+                                        <td>
+                                            <span class="table-badge badge-info">{{ team.members }}/{{ team.total }} Members</span>
+                                        </td>
+                                        <td>
+                                            <span style="color: hsl(var(--foreground));">{{ team.created_at|date:"M d, Y" }}</span>
+                                        </td>
+                                        <td>
+                                            {% if team.members == team.total %}
+                                                <span class="table-badge badge-success">Complete</span>
+                                            {% elif team.members > 0 %}
+                                                <span class="table-badge badge-warning">In Progress</span>
+                                            {% else %}
+                                                <span class="table-badge badge-secondary">Pending</span>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                    {% empty %}
+                                    <tr>
+                                        <td colspan="6" style="text-align: center; color: hsl(var(--muted-foreground)); padding: 40px;">
+                                            <i class="fas fa-users fa-2x mb-3" style="opacity: 0.3;"></i>
+                                            <p>No teams created yet</p>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</section>
+
+<!-- Quick Actions -->
+<section class="actions-section">
+    <div class="container">
+        <h2 class="text-center mb-5" style="color: hsl(var(--primary)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem;">
+            <i class="fas fa-bolt me-3"></i>Quick Actions
+        </h2>
+        
+        <div class="row g-4">
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/add-admin/'">
+                    <div class="action-icon">
+                        <i class="fas fa-user-plus"></i>
+                    </div>
+                    <h3 class="action-title">Add Admin</h3>
+                    <p class="action-desc">Grant interdimensional access to new administrators</p>
+                    <button class="action-button">Open Portal</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/manage-competitions/'">
+                    <div class="action-icon">
+                        <i class="fas fa-edit"></i>
+                    </div>
+                    <h3 class="action-title">Manage Competitions</h3>
+                    <p class="action-desc">Edit or delete existing competition portals</p>
+                    <button class="action-button">Edit Portal</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/manage-schedule/'">
+                    <div class="action-icon">
+                        <i class="fas fa-clock"></i>
+                    </div>
+                    <h3 class="action-title">Manage Timeline</h3>
+                    <p class="action-desc">Create, edit, and delete schedule events and breaks</p>
+                    <button class="action-button">View Timeline</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/view-registrations/'">
+                    <div class="action-icon">
+                        <i class="fas fa-list-check"></i>
+                    </div>
+                    <h3 class="action-title">View Registrations</h3>
+                    <p class="action-desc">View all registrations sorted by name, department, year, or event</p>
+                    <button class="action-button">View Records</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/export-registrations/'">
+                    <div class="action-icon">
+                        <i class="fas fa-download"></i>
+                    </div>
+                    <h3 class="action-title">Export Registrations</h3>
+                    <p class="action-desc">Download all registration data as CSV file</p>
+                    <button class="action-button">Export CSV</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/manage-coordinators/'">
+                    <div class="action-icon">
+                        <i class="fas fa-users"></i>
+                    </div>
+                    <h3 class="action-title">Manage Coordinators</h3>
+                    <p class="action-desc">Manage event coordinators and their details</p>
+                    <button class="action-button">Manage</button>
+                </div>
+            </div>
+            
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/chatbot/training/'">
+                    <div class="action-icon">
+                        <i class="fas fa-brain"></i>
+                    </div>
+                    <h3 class="action-title">Train Chatbot</h3>
+                    <p class="action-desc">Create and manage custom Q&A pairs for SWEKEER</p>
+                    <button class="action-button">Train Bot</button>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/send-alert/'">
+                    <div class="action-icon">
+                        <i class="fas fa-bell"></i>
+                    </div>
+                    <h3 class="action-title">Send Alert</h3>
+                    <p class="action-desc">Send notifications and alerts to participants and teams</p>
+                    <button class="action-button">Send Alert</button>
+                </div>
+            </div>
+
+            <div class="col-lg-3 col-md-6">
+                <div class="action-card" onclick="window.location.href='/error-logs/'">
+                    <div class="action-icon">
+                        <i class="fas fa-exclamation-circle"></i>
+                    </div>
+                    <h3 class="action-title">Error Logs</h3>
+                    <p class="action-desc">View and manage system error logs</p>
+                    <button class="action-button">View Logs</button>
+                </div>
+            </div>
+            
+        </div>
+    </div>
+</section>
+
+<!-- Alerts Section -->
+<section class="alerts-section">
+    <div class="container">
+        <h2 class="text-center mb-5" style="color: hsl(var(--primary)); font-family: 'Orbitron', sans-serif; font-size: 2.5rem;">
+            <i class="fas fa-exclamation-triangle me-3"></i>System Alerts
+        </h2>
+        
+        <div class="row">
+            <div class="col-lg-8 mx-auto">
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <h4 class="alert-title">High Registration Volume</h4>
+                        <span class="alert-badge alert-high">High</span>
+                    </div>
+                    <div class="alert-content">
+                        Code Demogorgon portal has reached 92% capacity. Consider increasing capacity or creating a waitlist.
+                    </div>
+                </div>
+                
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <h4 class="alert-title">Schedule Conflict Detected</h4>
+                        <span class="alert-badge alert-medium">Medium</span>
+                    </div>
+                    <div class="alert-content">
+                        15 explorers have registered for overlapping events. Send reminder emails to help them choose.
+                    </div>
+                </div>
+                
+                <div class="alert-card">
+                    <div class="alert-header">
+                        <div class="alert-icon">
+                            <i class="fas fa-calendar-day"></i>
+                        </div>
+                        <h4 class="alert-title">Event Starting Soon</h4>
+                        <span class="alert-badge alert-low">Low</span>
+                    </div>
+                    <div class="alert-content">
+                        Opening ceremony portal opens in 3 days. Ensure all preparations are complete.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- Charts Section -->
+<section class="charts-section">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-chart-line"></i> Registration Trends
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <div class="chart-icon">
+                                    <i class="fas fa-chart-line"></i>
+                                </div>
+                                <h4 style="color: hsl(var(--foreground)); margin-bottom: 10px;">Daily Registration Trend</h4>
+                                <div style="margin-top: 30px;">
+                                    <div style="display: flex; align-items: flex-end; height: 200px; gap: 20px; padding: 0 20px;">
+                                        {% for day in "MTWTFSS" %}
+                                        <div style="flex: 1; display: flex; flex-direction: column; align-items: center;">
+                                            <div style="width: 30px; background: linear-gradient(to top, hsl(var(--primary)), hsl(var(--stranger-orange))); border-radius: 5px 5px 0 0; height: {{ forloop.counter|add:"1"|stringformat:"f" }}0px;"></div>
+                                            <span style="margin-top: 10px; color: hsl(var(--muted-foreground)); font-size: 0.9rem;">{{ day }}</span>
+                                        </div>
+                                        {% endfor %}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="col-lg-6">
+                <div class="widget-card">
+                    <div class="widget-header">
+                        <h3 class="widget-title">
+                            <i class="fas fa-clock"></i> Peak Hours
+                        </h3>
+                    </div>
+                    <div class="widget-body">
+                        <div class="chart-container">
+                            <div class="chart-placeholder">
+                                <div class="chart-icon">
+                                    <i class="fas fa-clock"></i>
+                                </div>
+                                <h4 style="color: hsl(var(--foreground)); margin-bottom: 10px;">Registration Activity by Hour</h4>
+                                <p style="color: hsl(var(--muted-foreground)); margin-top: 20px;">
+                                    Peak registration hours: <strong>10:00 AM - 12:00 PM</strong><br>
+                                    Lowest activity: <strong>2:00 AM - 6:00 AM</strong>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add hover effects to stat cards
+        const statCards = document.querySelectorAll('.stat-card');
+        statCards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateY(-10px)';
+            });
+            
+            card.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateY(0)';
+            });
+        });
+        
+        // Add click effects to action cards
+        const actionCards = document.querySelectorAll('.action-card');
+        actionCards.forEach(card => {
+            card.addEventListener('click', function() {
+                this.style.transform = 'translateY(-5px) scale(1.02)';
+                setTimeout(() => {
+                    this.style.transform = 'translateY(-10px)';
+                }, 150);
+            });
+        });
+        
+        // Table row hover effects
+        const tableRows = document.querySelectorAll('.dashboard-table tbody tr');
+        tableRows.forEach(row => {
+            row.addEventListener('mouseenter', function() {
+                this.style.transform = 'translateX(5px)';
+            });
+            
+            row.addEventListener('mouseleave', function() {
+                this.style.transform = 'translateX(0)';
+            });
+        });
+    });
+    
+    // Quick action functions
+    function exportData() {
+        alert('Data export initiated. This would typically generate and download a CSV file with all registration data.');
+        // In a real implementation, this would trigger a server-side export
+    }
+    
+    function sendBroadcast() {
+        const message = prompt('Enter broadcast message for all participants:');
+        if (message) {
+            alert(`Broadcast message sent: "${message}"`);
+            // In a real implementation, this would send emails/notifications
+        }
+    }
+    
+    // Refresh Data function with loading animation
+    function refreshData() {
+        const btn = document.getElementById('refreshBtn');
+        const icon = btn.querySelector('i');
+        
+        // Add spinning animation
+        icon.classList.add('fa-spin');
+        btn.disabled = true;
+        
+        // Show loading feedback
+        const originalText = btn.innerHTML;
+        btn.innerHTML = '<i class="fas fa-spinner fa-pulse me-2"></i>Refreshing...';
+        
+        // Reload the page
+        setTimeout(function() {
+            location.reload();
+        }, 500); // Small delay for visual feedback
+    }
+    
+    // Auto-refresh data every 5 minutes
+    setInterval(function() {
+        console.log('Auto-refreshing dashboard data...');
+        // In a real implementation, this would fetch fresh data via AJAX
+    }, 300000); // 5 minutes
+</script>
+{% endblock %}

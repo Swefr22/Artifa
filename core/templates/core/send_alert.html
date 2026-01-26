@@ -1,0 +1,564 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Send Alert - Admin - ARTIFA FEST{% endblock %}
+
+{% block extra_css %}
+<style>
+    /* Stranger Things Theme - Consistent Color System */
+    :root {
+        /* Core Colors - Matching other pages */
+        --background: 0 0% 2%;
+        --foreground: 0 0% 96%;
+        --card: 0 0% 7%;
+        --card-foreground: 0 0% 96%;
+        --primary: 0 92% 48%;
+        --primary-foreground: 0 0% 100%;
+        --secondary: 220 22% 14%;
+        --secondary-foreground: 0 0% 96%;
+        --muted: 220 18% 18%;
+        --muted-foreground: 220 12% 65%;
+        --accent: 220 94% 58%;
+        --accent-foreground: 0 0% 100%;
+        --border: 220 18% 22%;
+        --ring: 0 92% 48%;
+        
+        /* Stranger Things Enhanced Colors */
+        --stranger-red: 0 92% 48%;
+        --stranger-red-glow: 0 100% 55%;
+        --stranger-dark: 0 0% 2%;
+        --stranger-blue: 220 94% 58%;
+        --stranger-fog: 220 24% 55%;
+        --upside-down-bg: 180 35% 4%;
+        --upside-down-red: 0 100% 35%;
+        --stranger-yellow: 45 98% 80%;
+        --stranger-orange: 25 96% 56%;
+        --stranger-purple: 280 86% 62%;
+        --stranger-green: 160 84% 39%;
+        
+        /* Enhanced Gradients */
+        --gradient-dark: linear-gradient(180deg, 
+            hsl(0 0% 2%) 0%, 
+            hsl(220 22% 8%) 30%, 
+            hsl(0 0% 2%) 100%);
+        --gradient-card: linear-gradient(145deg, 
+            hsl(0 0% 7%) 0%, 
+            hsl(220 18% 10%) 100%);
+        --gradient-btn-primary: linear-gradient(135deg, 
+            hsl(0 92% 48%) 0%, 
+            hsl(0 100% 45%) 50%, 
+            hsl(0 92% 48%) 100%);
+        
+        /* Shadows */
+        --shadow-card: 0 8px 32px hsl(0 0% 0% / .5);
+        --shadow-card-hover: 0 16px 48px hsl(0 92% 48% / .25);
+        --shadow-btn: 0 4px 15px hsl(0 92% 48% / .3);
+    }
+
+    body {
+        padding-top: 0 !important;
+        background: hsl(var(--background)) !important;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+        padding-top: 210px;
+    }
+
+    /* Header Section */
+    .send-alert-hero {
+        position: relative;
+        padding: 80px 0 40px;
+        background: linear-gradient(45deg, 
+            hsl(var(--stranger-dark) / 0.1), 
+            hsl(var(--secondary) / 0.1),
+            hsl(var(--stranger-dark) / 0.1));
+        color: hsl(var(--foreground));
+        overflow: hidden;
+        text-align: center;
+        border-bottom: 3px solid hsl(var(--primary));
+    }
+
+    .send-alert-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 20% 50%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 80% 20%, hsl(var(--accent) / 0.1) 0%, transparent 50%);
+    }
+
+    .alert-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        margin-bottom: 15px;
+        text-shadow: 0 0 30px hsl(var(--primary) / 0.3);
+        text-transform: uppercase;
+        letter-spacing: 3px;
+    }
+
+    .alert-subtitle {
+        font-size: 1.4rem;
+        color: hsl(var(--stranger-yellow));
+        opacity: 0.9;
+    }
+
+    /* Content Area */
+    .alert-content {
+        padding: 60px 0;
+        background: hsl(var(--background));
+        position: relative;
+        z-index: 10;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .stat-card {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 30px;
+        text-align: center;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        border-color: hsl(var(--primary));
+        box-shadow: var(--shadow-card-hover);
+        transform: translateY(-5px);
+    }
+
+    .stat-number {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3rem;
+        font-weight: 900;
+        color: hsl(var(--primary));
+        margin-bottom: 10px;
+    }
+
+    .stat-label {
+        font-size: 1rem;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+        letter-spacing: 1px;
+    }
+
+    /* Form Container */
+    .form-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+
+    /* Form Section */
+    .form-section {
+        background: var(--gradient-card);
+        border: 2px solid hsl(var(--border));
+        border-radius: 20px;
+        padding: 40px;
+        margin-bottom: 30px;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .form-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 5px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    /* Section Header */
+    .section-header {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 2rem;
+        font-weight: 700;
+        color: hsl(var(--primary));
+        text-transform: uppercase;
+        letter-spacing: 2px;
+        margin-bottom: 40px;
+        display: flex;
+        align-items: center;
+        gap: 15px;
+    }
+
+    .section-header i {
+        font-size: 2.5rem;
+        filter: drop-shadow(0 0 8px hsl(var(--primary) / 0.5));
+    }
+
+    /* Form Groups */
+    .form-group {
+        margin-bottom: 25px;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: hsl(var(--foreground));
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    /* Radio Buttons - EXACTLY like your previous code */
+    .form-check {
+        margin-bottom: 15px;
+        padding: 15px;
+        background: hsl(var(--secondary) / 0.2);
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+        transition: all 0.3s ease;
+    }
+
+    .form-check:hover {
+        background: hsl(var(--secondary) / 0.4);
+        border-color: hsl(var(--primary));
+    }
+
+    .form-check-input {
+        cursor: pointer;
+        width: 18px;
+        height: 18px;
+        border: 2px solid hsl(var(--border));
+        accent-color: hsl(var(--primary));
+        margin-right: 10px;
+    }
+
+    .form-check-label {
+        cursor: pointer;
+        font-weight: 500;
+        color: hsl(var(--foreground));
+    }
+
+    /* Form Controls */
+    .form-control, .form-select {
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+        padding: 12px 15px;
+        background: hsl(var(--card));
+        color: hsl(var(--foreground));
+        font-size: 0.95rem;
+        transition: all 0.3s ease;
+    }
+
+    .form-control:focus, .form-select:focus {
+        border-color: hsl(var(--primary));
+        box-shadow: 0 0 0 3px hsl(var(--primary) / 0.1);
+        outline: none;
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    }
+
+    /* Event Selector - EXACTLY like your previous code */
+    .event-select-wrapper {
+        margin-top: 15px;
+        padding: 20px;
+        background: hsl(var(--secondary) / 0.2);
+        border: 2px solid hsl(var(--border));
+        border-radius: 10px;
+    }
+
+    /* Button Group */
+    .button-group {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+        gap: 15px;
+        margin-top: 30px;
+    }
+
+    .btn-submit {
+        background: var(--gradient-btn-primary);
+        color: hsl(0 0% 100%);
+        border: none;
+        padding: 14px 28px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.95rem;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-3px);
+        box-shadow: var(--shadow-btn);
+    }
+
+    .btn-back {
+        background: transparent;
+        color: hsl(var(--primary));
+        border: 2px solid hsl(var(--primary));
+        padding: 12px 28px;
+        border-radius: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        text-decoration: none;
+        transition: all 0.3s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 0.95rem;
+    }
+
+    .btn-back:hover {
+        background: hsl(var(--primary) / 0.1);
+    }
+
+    /* Info Box */
+    .info-box {
+        background: hsl(var(--primary) / 0.1);
+        border: 2px solid hsl(var(--primary) / 0.3);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        color: hsl(var(--foreground));
+    }
+
+    .info-box strong {
+        color: hsl(var(--primary));
+    }
+
+    /* Alert Messages */
+    .alert-message {
+        padding: 15px 20px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+        border-left: 5px solid;
+    }
+
+    .alert-success {
+        background: hsl(0 92% 48% / 0.1);
+        border-color: hsl(0 92% 48%);
+        color: hsl(0 92% 60%);
+    }
+
+    .alert-danger {
+        background: hsl(0 92% 48% / 0.1);
+        border-color: hsl(0 92% 48%);
+        color: hsl(0 92% 60%);
+    }
+
+    /* Responsive */
+    @media (max-width: 992px) {
+        .alert-title {
+            font-size: 2.5rem;
+        }
+
+        .section-header {
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            padding: 30px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        main {
+            padding-top: 180px;
+        }
+
+        .send-alert-hero {
+            padding: 60px 0 30px;
+        }
+
+        .alert-title {
+            font-size: 2rem;
+            letter-spacing: 2px;
+        }
+
+        .form-section {
+            padding: 25px;
+        }
+
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .button-group {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 576px) {
+        .alert-title {
+            font-size: 1.5rem;
+        }
+
+        .form-section {
+            padding: 20px;
+        }
+
+        .section-header {
+            font-size: 1.2rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="send-alert-hero">
+    <div class="container">
+        <h1 class="alert-title">
+            <i class="fas fa-bell"></i> Send Alert
+        </h1>
+        <p class="alert-subtitle">Send important notifications to event participants</p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="alert-content">
+    <div class="container">
+        <!-- Messages -->
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert-message alert-{{ message.tags }}">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <!-- Stats -->
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-number">{{ total_participants }}</div>
+                <div class="stat-label">Total Participants</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-number">{{ total_registered }}</div>
+                <div class="stat-label">Registered Users</div>
+            </div>
+        </div>
+
+        <!-- Alert Form -->
+        <form method="POST" class="form-section">
+            {% csrf_token %}
+
+            <h2 class="section-header">
+                <i class="fas fa-cog"></i> Alert Configuration
+            </h2>
+
+            <!-- Recipient Type -->
+            <div class="form-group">
+                <label class="form-label">{{ form.recipient_type.label }}</label>
+                {% for radio in form.recipient_type %}
+                    <div class="form-check">
+                        {{ radio.tag }}
+                        <label class="form-check-label" for="{{ radio.id_for_label }}">
+                            {{ radio.choice_label }}
+                        </label>
+                    </div>
+                {% endfor %}
+                {% if form.recipient_type.errors %}
+                    <div class="alert-message alert-danger">
+                        {% for error in form.recipient_type.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Event Selector (if needed) -->
+            <div class="event-select-wrapper" id="event-selector" style="display: none;">
+                <label class="form-label" for="{{ form.event.id_for_label }}">{{ form.event.label }}</label>
+                {{ form.event }}
+                {% if form.event.errors %}
+                    <div class="alert-message alert-danger">
+                        {% for error in form.event.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <h2 class="section-header" style="margin-top: 40px;">
+                <i class="fas fa-envelope"></i> Message Details
+            </h2>
+
+            <!-- Subject -->
+            <div class="form-group">
+                <label class="form-label" for="{{ form.subject.id_for_label }}">{{ form.subject.label }}</label>
+                {{ form.subject }}
+                {% if form.subject.errors %}
+                    <div class="alert-message alert-danger">
+                        {% for error in form.subject.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Message -->
+            <div class="form-group">
+                <label class="form-label" for="{{ form.message.id_for_label }}">{{ form.message.label }}</label>
+                {{ form.message }}
+                {% if form.message.errors %}
+                    <div class="alert-message alert-danger">
+                        {% for error in form.message.errors %}{{ error }}{% endfor %}
+                    </div>
+                {% endif %}
+            </div>
+
+            <!-- Info Box -->
+            <div class="info-box">
+                <strong><i class="fas fa-info-circle"></i> SMTP Configuration</strong><br>
+                Ensure your Gmail account is configured with App Password. Regular passwords don't work with SMTP.
+            </div>
+
+            <!-- Buttons -->
+            <div class="button-group">
+                <button type="submit" class="btn-submit">
+                    <i class="fas fa-paper-plane"></i> Send Alert
+                </button>
+                <a href="{% url 'admin_dashboard' %}" class="btn-back">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </form>
+    </div>
+</section>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show/hide event selector - EXACTLY like your previous code
+        document.querySelectorAll('input[name="recipient_type"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const eventSelector = document.getElementById('event-selector');
+                if (this.value === 'event') {
+                    eventSelector.style.display = 'block';
+                } else {
+                    eventSelector.style.display = 'none';
+                }
+            });
+        });
+
+        // Check initial state
+        const selectedRadio = document.querySelector('input[name="recipient_type"]:checked');
+        if (selectedRadio && selectedRadio.value === 'event') {
+            document.getElementById('event-selector').style.display = 'block';
+        }
+    });
+</script>
+
+{% endblock %}

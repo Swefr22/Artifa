@@ -1,0 +1,642 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Login{% endblock %}
+
+{% block extra_css %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap');
+
+    * {
+        font-family: 'Poppins', sans-serif;
+    }
+
+    /* Fixed background container */
+    .background-container {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 0;
+        pointer-events: none;
+        overflow: hidden;
+        background: #0a0000;
+    }
+
+    .background-image {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: 1;
+        opacity: 2;
+        filter: brightness(0.4) contrast(1.1);
+        pointer-events: none;
+    }
+
+    /* Black cover with hover effect */
+    .black-cover {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background:#0f0000;
+        z-index: 1;
+        pointer-events: none;
+        opacity: 1;
+        transition: opacity 0.3s ease;
+    }
+
+    .noise-layer {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.7' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.1'/%3E%3C/svg%3E");
+        opacity: 0.6;
+        pointer-events: none;
+        z-index: 3;
+    }
+
+    main {
+        position: relative;
+        z-index: 10;
+    }
+
+    .login-wrapper {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.8s ease-in;
+        z-index: 10;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+
+    .login-container {
+        max-width: 480px;
+        width: 100%;
+        animation: slideUp 0.8s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    @keyframes slideUp {
+        from {
+            transform: translateY(40px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .login-header {
+        text-align: center;
+        margin-bottom: 45px;
+        position: relative;
+    }
+
+    .login-header h1 {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        background: linear-gradient(135deg, #e02401 0%, #f97316 50%, #fbbf24 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        text-shadow: 0 0 30px rgba(224, 36, 1, 0.3);
+        margin-bottom: 15px;
+        letter-spacing: 3px;
+    }
+
+    .login-header .divider {
+        height: 4px;
+        background: linear-gradient(90deg, transparent, #e02401, #f97316, transparent);
+        border-radius: 2px;
+        width: 120px;
+        margin: 20px auto 15px;
+    }
+
+    .login-header p {
+        color: #cbd5e1;
+        font-size: 0.95rem;
+        font-weight: 300;
+        letter-spacing: 0.5px;
+    }
+
+    .login-form {
+        background: linear-gradient(135deg, rgba(15, 23, 42, 0.8) 0%, rgba(30, 41, 59, 0.8) 100%);
+        border: 1.5px solid rgba(224, 36, 1, 0.3);
+        border-radius: 15px;
+        padding: 50px 40px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .login-form::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(224, 36, 1, 0.1), transparent);
+        transition: left 0.8s ease;
+        pointer-events: none;
+    }
+
+    .login-form:hover::before {
+        left: 100%;
+    }
+
+    .form-group {
+        margin-bottom: 25px;
+        position: relative;
+    }
+
+    .form-group label {
+        display: block;
+        color: #e0e7ff;
+        font-weight: 600;
+        margin-bottom: 10px;
+        font-size: 0.95rem;
+        letter-spacing: 0.3px;
+        transition: color 0.3s ease;
+    }
+
+    .form-group:focus-within label {
+        color: #f97316;
+    }
+
+    .form-group i {
+        margin-right: 8px;
+    }
+
+    .login-form .form-control {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1.5px solid rgba(224, 36, 1, 0.2);
+        border-radius: 10px;
+        color: #f8f9fa;
+        padding: 14px 18px;
+        font-size: 0.95rem;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        backdrop-filter: blur(5px);
+    }
+
+    .login-form .form-control:focus {
+        background: rgba(255, 255, 255, 0.06);
+        border-color: #e02401;
+        color: #f8f9fa;
+        box-shadow: 0 0 0 3px rgba(224, 36, 1, 0.15), inset 0 0 0 1px rgba(224, 36, 1, 0.2);
+        outline: none;
+    }
+
+    .login-form .form-control::placeholder {
+        color: rgba(248, 249, 250, 0.4);
+    }
+
+    .btn-login {
+        background: linear-gradient(135deg, #e02401 0%, #f97316 100%);
+        border: none;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        padding: 14px 30px;
+        font-size: 0.95rem;
+        text-transform: uppercase;
+        position: relative;
+        overflow: hidden;
+        box-shadow: 0 10px 30px rgba(224, 36, 1, 0.3);
+    }
+
+    .btn-login::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: -100%;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+        transition: left 0.6s ease;
+    }
+
+    .btn-login:hover::before {
+        left: 100%;
+    }
+
+    .btn-login:hover {
+        background: linear-gradient(135deg, #f97316 0%, #fbbf24 100%);
+        transform: translateY(-3px);
+        box-shadow: 0 15px 40px rgba(224, 36, 1, 0.5);
+    }
+
+    .btn-login:active {
+        transform: translateY(-1px);
+    }
+
+    .form-footer {
+        text-align: center;
+        margin-top: 30px;
+        padding-top: 25px;
+        border-top: 1px solid rgba(224, 36, 1, 0.1);
+    }
+
+    .forgot-password-link {
+        text-decoration: none;
+        color: #f97316;
+        font-weight: 600;
+        font-size: 0.9rem;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .forgot-password-link:hover {
+        color: #fbbf24;
+        transform: translateX(3px);
+    }
+
+    .register-section {
+        text-align: center;
+        margin-top: 25px;
+        color: #cbd5e1;
+        font-size: 0.9rem;
+        position: relative;
+    }
+
+    .register-section a {
+        color: #f97316;
+        font-weight: 700;
+        text-decoration: none;
+        transition: all 0.2s ease;
+        margin-left: 5px;
+    }
+
+    .register-section a:hover {
+        color: #fbbf24;
+        text-decoration: underline;
+    }
+
+    .alert {
+        background: rgba(239, 68, 68, 0.1);
+        border: 1px solid rgba(239, 68, 68, 0.3);
+        color: #fca5a5;
+        border-radius: 10px;
+        margin-bottom: 25px;
+        animation: slideDown 0.3s ease;
+    }
+
+    @keyframes slideDown {
+        from {
+            transform: translateY(-10px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+
+    .alert-dismissible .btn-close {
+        filter: invert(1);
+    }
+
+    .error-text {
+        color: #fca5a5;
+        font-size: 0.85rem;
+        margin-top: 8px;
+        display: flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .error-text::before {
+        content: '⚠';
+        font-weight: bold;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 600px) {
+        .login-header h1 {
+            font-size: 2.5rem;
+            letter-spacing: 2px;
+        }
+
+        .login-form {
+            padding: 35px 25px;
+        }
+
+        .btn-login {
+            padding: 12px 25px;
+            font-size: 0.9rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Background Reveal Effect -->
+<div class="background-container">
+    <img src="{% static 'images/veccna attack human.jpeg' %}" class="background-image" id="backgroundImage" alt="Background">
+    <div class="black-cover" id="blackCover"></div>
+    <div class="noise-layer" id="noiseLayer"></div>
+</div>
+
+<!-- Lightning Canvas -->
+<canvas id="lightningCanvas" style="position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none;"></canvas>
+
+<div class="login-wrapper">
+    <div class="login-container">
+        <div class="login-header">
+            <h1>LOGIN</h1>
+            <div class="divider"></div>
+            <p>Welcome back to ARTIFA FEST</p>
+        </div>
+        
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    <i class="fas fa-check-circle"></i> {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <div class="login-form">
+            <form method="post" novalidate>
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger mb-4">
+                        <i class="fas fa-exclamation-circle"></i>
+                        {% for error in form.non_field_errors %}
+                            <div>{{ error }}</div>
+                        {% endfor %}
+                    </div>
+                {% endif %}
+
+                <div class="form-group">
+                    <label for="{{ form.username.id_for_label }}">
+                        <i class="fas fa-user"></i> Username or Email
+                    </label>
+                    {{ form.username }}
+                    {% if form.username.errors %}
+                        <div class="error-text">
+                            {% for error in form.username.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <div class="form-group">
+                    <label for="{{ form.password.id_for_label }}">
+                        <i class="fas fa-lock"></i> Password
+                    </label>
+                    {{ form.password }}
+                    {% if form.password.errors %}
+                        <div class="error-text">
+                            {% for error in form.password.errors %}{{ error }}{% endfor %}
+                        </div>
+                    {% endif %}
+                </div>
+
+                <button type="submit" class="btn btn-login w-100">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+
+                <div class="form-footer">
+                    <a href="{% url 'forgot_password' %}" class="forgot-password-link">
+                        <i class="fas fa-key"></i> Forgot Password?
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <div class="register-section">
+            Don't have an account?
+            <a href="{% url 'register' %}">
+                <i class="fas fa-user-plus"></i> Register Now
+            </a>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // ================ EXACT LIGHTNING SHAPE LIKE SECOND CODE ================
+    const canvas = document.getElementById("lightningCanvas");
+    const ctx = canvas.getContext("2d");
+
+    // Resize canvas
+    function resize() {
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener("resize", resize);
+
+    const config = {
+        color: "#ff2a2a",
+        shadow: "#ff0000",
+        thickness: 3,  // EXACT like second code
+        maxBranches: 3,
+        branchChance: 0.6
+    };
+
+    // EXACT recursive function from second code
+    function drawLightning(x1, y1, x2, y2, displace, depth = 0) {
+        if (displace < 5 || depth > config.maxBranches) {
+            ctx.beginPath();
+            ctx.moveTo(x1, y1);
+            ctx.lineTo(x2, y2);
+            ctx.stroke();
+            return;
+        }
+
+        const midX = (x1 + x2) / 2 + (Math.random() - 0.5) * displace;
+        const midY = (y1 + y2) / 2 + (Math.random() - 0.5) * displace;
+
+        drawLightning(x1, y1, midX, midY, displace / 2, depth);
+        drawLightning(midX, midY, x2, y2, displace / 2, depth);
+
+        // Branch - EXACT like second code
+        if (Math.random() < config.branchChance) {
+            drawLightning(
+                midX,
+                midY,
+                midX + (Math.random() - 0.5) * displace * 2,
+                midY + Math.random() * displace * 2,
+                displace / 2,
+                depth + 1
+            );
+        }
+    }
+
+
+    // Function to create holes in black cover (simplified for exact shape)
+    function createLightningHoles(startX, startY, endX, endY) {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        
+        if (!blackCover || !noiseLayer) return;
+        
+        // Create simple holes along the lightning path
+        const maskGradients = [];
+        const steps = 10;
+        
+        for (let i = 0; i <= steps; i++) {
+            const t = i / steps;
+            const x = startX + (endX - startX) * t + (Math.random() - 0.5) * 50;
+            const y = startY + (endY - startY) * t + (Math.random() - 0.5) * 50;
+            
+            maskGradients.push(
+                `radial-gradient(circle 80px at ${x}px ${y}px, transparent 0%, transparent 40%, black 100%)`
+            );
+        }
+        
+        if (maskGradients.length > 0) {
+            const maskValue = maskGradients.join(', ');
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            
+            blackCover.style.opacity = '0.5';
+            noiseLayer.style.opacity = '0.3';
+        }
+    }
+
+    // Reset black cover to normal
+    function resetBlackCover() {
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        
+        if (blackCover && noiseLayer) {
+            blackCover.style.webkitMaskImage = 'none';
+            blackCover.style.maskImage = 'none';
+            blackCover.style.opacity = '1';
+            
+            noiseLayer.style.webkitMaskImage = 'none';
+            noiseLayer.style.maskImage = 'none';
+            noiseLayer.style.opacity = '0.6';
+        }
+    }
+
+    // EXACT lightning strike function from second code with added hole creation
+    function lightningStrike() {
+        const startX = Math.random() * canvas.width;
+        const startY = 0;
+
+        const endX = startX + (Math.random() - 0.5) * 200;
+        const endY = canvas.height * (0.4 + Math.random() * 0.6);
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        // Red flash - EXACT from second code
+        ctx.fillStyle = "rgba(255, 50, 50, 0.15)";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+        ctx.strokeStyle = config.color;
+        ctx.shadowColor = config.shadow;
+        ctx.shadowBlur = 80;
+        ctx.lineWidth = config.thickness;
+        ctx.lineCap = "round";
+
+        // Create holes before drawing lightning
+        createLightningHoles(startX, startY, endX, endY);
+
+        // Draw lightning - EXACT like second code
+        drawLightning(startX, startY, endX, endY, 90);
+
+        // EXACT fade out from second code
+        let alpha = 1;
+        const fade = setInterval(() => {
+            alpha -= 0.13;
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = `rgba(255, 50, 50, ${alpha * 0.15})`;
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+
+            // Redraw lightning with fading alpha
+            ctx.globalAlpha = alpha;
+            ctx.strokeStyle = config.color;
+            ctx.shadowColor = config.shadow;
+            ctx.shadowBlur = 80;
+            ctx.lineWidth = config.thickness;
+            ctx.lineCap = "round";
+            
+            // Redraw the lightning
+            drawLightning(startX, startY, endX, endY, 90 * alpha);
+
+            // Fade the background reveal
+            const blackCover = document.getElementById("blackCover");
+            const noiseLayer = document.getElementById("noiseLayer");
+            if (blackCover && noiseLayer) {
+                blackCover.style.opacity = (0.5 * alpha).toString();
+                noiseLayer.style.opacity = (0.3 * alpha).toString();
+            }
+
+            if (alpha <= 0) {
+                clearInterval(fade);
+                ctx.globalAlpha = 1;
+                ctx.clearRect(0, 0, canvas.width, canvas.height);
+                
+                resetBlackCover();
+            }
+        }, 30);
+    }
+
+    // ⚡ Thunder appears ONCE every 2 seconds - EXACT timing
+    setInterval(() => {
+        lightningStrike();
+    }, 2000);
+
+    // Initial strike
+    setTimeout(() => {
+        lightningStrike();
+    }, 500);
+    // ================ END OF EXACT LIGHTNING CODE ===============
+    
+    document.addEventListener("mousemove", function(e) {
+        
+    
+        
+        const blackCover = document.getElementById("blackCover");
+        const noiseLayer = document.getElementById("noiseLayer");
+        const x = e.clientX;
+        const y = e.clientY;
+        
+        if (blackCover && noiseLayer) {
+            const maskValue = `radial-gradient(circle 200px at ${x}px ${y}px, transparent 0%, transparent 60%, black 100%)`;
+            
+            blackCover.style.webkitMaskImage = maskValue;
+            blackCover.style.maskImage = maskValue;
+            noiseLayer.style.webkitMaskImage = maskValue;
+            noiseLayer.style.maskImage = maskValue;
+            blackCover.style.opacity = '1';
+            noiseLayer.style.opacity = '0.6';
+        }
+    });
+    
+    
+</script>
+{% endblock %}

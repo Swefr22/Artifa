@@ -1,0 +1,419 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Manage Competitions - Control Panel{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --primary: 0 92% 48%;
+        --stranger-dark: 240 10% 3%;
+        --secondary: 240 15% 9%;
+        --foreground: 0 0% 95%;
+        --border: 240 10% 20%;
+        --card: 240 10% 8%;
+        --muted-foreground: 240 5% 64%;
+        --primary-foreground: 0 0% 100%;
+        --stranger-yellow: 51 100% 50%;
+        --stranger-orange: 25 100% 50%;
+    }
+
+    /* Hero Section */
+    .competitions-hero {
+        position: relative;
+        padding: 100px 0 60px;
+        background: linear-gradient(135deg, hsl(var(--stranger-dark)), hsl(var(--secondary)));
+        color: hsl(var(--foreground));
+        text-align: center;
+        overflow: hidden;
+    }
+
+    .competitions-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: 
+            radial-gradient(circle at 30% 30%, hsl(var(--primary) / 0.1) 0%, transparent 50%),
+            radial-gradient(circle at 70% 70%, hsl(var(--stranger-yellow) / 0.1) 0%, transparent 50%);
+    }
+
+    .competitions-title {
+        font-family: 'Orbitron', sans-serif;
+        font-size: 3.5rem;
+        font-weight: 900;
+        margin-bottom: 1rem;
+        text-transform: uppercase;
+        letter-spacing: 3px;
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-yellow)));
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        position: relative;
+    }
+
+    .competitions-subtitle {
+        font-size: 1.2rem;
+        color: hsl(var(--stranger-yellow));
+        margin-bottom: 2rem;
+    }
+
+    /* Main Section */
+    .competitions-section {
+        padding: 60px 0 100px;
+        background: hsl(var(--stranger-dark) / 0.95);
+        min-height: 100vh;
+    }
+
+    .competitions-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 0 20px;
+    }
+
+    /* Header with Button */
+    .competitions-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 40px;
+        padding: 20px;
+        background: hsl(var(--card));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+    }
+
+    .competitions-count {
+        font-size: 1.1rem;
+        color: hsl(var(--muted-foreground));
+    }
+
+    .competitions-count strong {
+        color: hsl(var(--primary));
+        font-size: 1.4rem;
+    }
+
+    .add-comp-btn {
+        background: linear-gradient(135deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+        color: hsl(var(--primary-foreground));
+        border: none;
+        padding: 12px 30px;
+        border-radius: 50px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        box-shadow: 0 0 20px hsl(var(--primary) / 0.3);
+    }
+
+    .add-comp-btn:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0 30px hsl(var(--primary) / 0.5);
+    }
+
+    /* Competitions Grid */
+    .competitions-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 25px;
+        margin-bottom: 40px;
+    }
+
+    .comp-card {
+        background: var(--gradient-card, linear-gradient(135deg, hsl(var(--card)), hsl(var(--secondary) / 0.5)));
+        border: 2px solid hsl(var(--border));
+        border-radius: 15px;
+        padding: 25px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .comp-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, hsl(var(--primary)), hsl(var(--stranger-orange)));
+    }
+
+    .comp-card:hover {
+        transform: translateY(-8px);
+        border-color: hsl(var(--primary));
+        box-shadow: 0 10px 40px hsl(var(--primary) / 0.2);
+    }
+
+    .comp-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 15px;
+    }
+
+    .comp-name {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: hsl(var(--foreground));
+        font-family: 'Orbitron', sans-serif;
+        margin: 0;
+    }
+
+    .comp-badge {
+        display: inline-block;
+        padding: 5px 12px;
+        background: hsl(var(--primary) / 0.2);
+        border: 1px solid hsl(var(--primary));
+        color: hsl(var(--primary));
+        border-radius: 20px;
+        font-size: 0.8rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .comp-type {
+        display: inline-block;
+        padding: 4px 10px;
+        background: hsl(var(--stranger-yellow) / 0.1);
+        border-radius: 5px;
+        color: hsl(var(--stranger-yellow));
+        font-size: 0.85rem;
+        font-weight: 600;
+        margin-bottom: 10px;
+    }
+
+    .comp-description {
+        color: hsl(var(--muted-foreground));
+        font-size: 0.95rem;
+        line-height: 1.5;
+        margin-bottom: 15px;
+    }
+
+    .comp-meta {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 10px;
+        padding: 15px 0;
+        border-top: 1px solid hsl(var(--border));
+        border-bottom: 1px solid hsl(var(--border));
+        margin-bottom: 15px;
+    }
+
+    .meta-item {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+    }
+
+    .meta-label {
+        font-size: 0.8rem;
+        color: hsl(var(--muted-foreground));
+        text-transform: uppercase;
+    }
+
+    .meta-value {
+        font-size: 1rem;
+        color: hsl(var(--foreground));
+        font-weight: 600;
+    }
+
+    /* Action Buttons */
+    .comp-actions {
+        display: flex;
+        gap: 10px;
+    }
+
+    .comp-btn {
+        flex: 1;
+        padding: 10px 15px;
+        border: none;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-edit {
+        background: hsl(var(--primary) / 0.2);
+        color: hsl(var(--primary));
+        border: 1px solid hsl(var(--primary));
+    }
+
+    .btn-edit:hover {
+        background: hsl(var(--primary));
+        color: hsl(var(--primary-foreground));
+    }
+
+    .btn-delete {
+        background: hsl(0 92% 48% / 0.2);
+        color: hsl(0 92% 48%);
+        border: 1px solid hsl(0 92% 48%);
+    }
+
+    .btn-delete:hover {
+        background: hsl(0 92% 48%);
+        color: hsl(var(--primary-foreground));
+    }
+
+    /* Empty State */
+    .empty-state {
+        text-align: center;
+        padding: 60px 20px;
+        background: hsl(var(--card));
+        border: 2px dashed hsl(var(--border));
+        border-radius: 15px;
+    }
+
+    .empty-icon {
+        font-size: 3rem;
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 20px;
+        opacity: 0.5;
+    }
+
+    .empty-title {
+        font-size: 1.5rem;
+        color: hsl(var(--foreground));
+        margin-bottom: 10px;
+    }
+
+    .empty-text {
+        color: hsl(var(--muted-foreground));
+        margin-bottom: 30px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .competitions-title {
+            font-size: 2.5rem;
+        }
+
+        .competitions-header {
+            flex-direction: column;
+            gap: 15px;
+            text-align: center;
+        }
+
+        .competitions-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .comp-meta {
+            grid-template-columns: 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="competitions-hero">
+    <div class="competitions-container">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <a href="{% url 'admin_dashboard' %}" style="color: hsl(var(--stranger-yellow)); text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 600;">
+                <i class="fas fa-arrow-left"></i>Back to Dashboard
+            </a>
+        </div>
+        <h1 class="competitions-title">
+            <i class="fas fa-trophy me-3"></i>Manage Competitions
+        </h1>
+        <p class="competitions-subtitle">
+            Create, edit, and manage all competition portals
+        </p>
+    </div>
+</section>
+
+<!-- Main Content -->
+<section class="competitions-section">
+    <div class="competitions-container">
+        <!-- Header with Add Button -->
+        <div class="competitions-header">
+            <div class="competitions-count">
+                <i class="fas fa-list-check me-2"></i>
+                Total Competitions: <strong>{{ total_competitions }}</strong>
+            </div>
+            <a href="{% url 'add_competition' %}" class="add-comp-btn">
+                <i class="fas fa-plus me-2"></i>Add New Competition
+            </a>
+        </div>
+
+        <!-- Competitions Grid -->
+        {% if competitions %}
+        <div class="competitions-grid">
+            {% for comp in competitions %}
+            <div class="comp-card">
+                <div class="comp-header">
+                    <h2 class="comp-name">{{ comp.name }}</h2>
+                    <span class="comp-badge">
+                        <i class="fas fa-star me-1"></i>Active
+                    </span>
+                </div>
+
+                <div class="comp-type">
+                    {% if comp.type == 'Technical' %}
+                    <i class="fas fa-code me-1"></i>Technical
+                    {% else %}
+                    <i class="fas fa-star me-1"></i>Non-Technical
+                    {% endif %}
+                </div>
+
+                <p class="comp-description">{{ comp.description }}</p>
+
+                <div class="comp-meta">
+                    <div class="meta-item">
+                        <span class="meta-label">Event Type</span>
+                        <span class="meta-value">
+                            {% if comp.is_team %}
+                            <i class="fas fa-users"></i> Team
+                            {% else %}
+                            <i class="fas fa-user"></i> Solo
+                            {% endif %}
+                        </span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Team Size</span>
+                        <span class="meta-value">{{ comp.team_size }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Registrations</span>
+                        <span class="meta-value">{{ comp.registrations }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <span class="meta-label">Status</span>
+                        <span class="meta-value" style="color: hsl(142 76% 36%);">
+                            <i class="fas fa-check-circle"></i> Active
+                        </span>
+                    </div>
+                </div>
+
+                <div class="comp-actions">
+                    <a href="{% url 'edit_competition' comp.id %}" class="comp-btn btn-edit">
+                        <i class="fas fa-edit me-1"></i>Edit
+                    </a>
+                    <a href="{% url 'delete_competition' comp.id %}" class="comp-btn btn-delete">
+                        <i class="fas fa-trash me-1"></i>Delete
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <div class="empty-icon">
+                <i class="fas fa-inbox"></i>
+            </div>
+            <h3 class="empty-title">No Competitions Found</h3>
+            <p class="empty-text">Create your first competition portal to get started</p>
+            <a href="{% url 'add_competition' %}" class="add-comp-btn">
+                <i class="fas fa-plus me-2"></i>Create First Competition
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</section>
+{% endblock %}
